@@ -46,7 +46,7 @@ This is a test extension providing some text editing ability.
 
 To regenerate the vsix package:
 
-1. Bump the versin in the package.json file
+1. Bump the version in the package.json file
 2. From the `caser` folder, run `vsce package` in the termninal
 
 To install in anoyther instance:

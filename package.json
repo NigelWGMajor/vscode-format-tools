@@ -9,6 +9,10 @@
   "categories": [
     "Other"
   ],
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/NigelWGMajor/vscode-format-tools.git"
+  },
   "publisher": "major-nix-test",
   "activationEvents": [],
   "main": "./out/extension.js",

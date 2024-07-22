@@ -1,0 +1,119 @@
+{
+  "name": "caser",
+  "displayName": "Caser",
+  "description": "",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "publisher": "major-nix-test",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "caser.toLowerCase",
+        "title": "to-Lower"
+      },
+      {
+        "command": "caser.toUpperCase",
+        "title": "to-Upper"
+      },
+      {
+        "command": "caser.toTitleCase",
+        "title": "to-Title"
+      },
+      {
+        "command": "caser.toCamelCase",
+        "title": "to-Camel"
+      },
+      {
+        "command": "caser.toPascalCase",
+        "title": "to-Pascal"
+      },
+      {
+        "command": "caser.toSnakeCase",
+        "title": "to-Snake"
+      },
+      {
+        "command": "caser.toSpaceCase",
+        "title": "to-Space"
+      },
+      {
+        "command": "caser.toKebabCase",
+        "title": "to-Kebab"
+      },
+      {
+        "command": "caser.toEscaped",
+        "title": "to-Escaped"
+      },
+      {
+        "command": "caser.toUnEscaped",
+        "title": "to-UnEscaped"
+      },
+      {
+        "command": "caser.toUnQuoted",
+        "title": "to-UnQuoted"
+      },
+      {
+        "command": "caser.toQuoted",
+        "title": "to-Quoted"
+      },
+      {
+        "command": "caser.toUnSQuoted",
+        "title": "to-UnSQuoted"
+      },
+      {
+        "command": "caser.toSQuoted",
+        "title": "to-SQuoted"
+      },
+      {
+        "command": "caser.loremIpsum",
+        "title": "LoremIpsum"
+      },
+      {
+        "command": "caser.toSquare",
+        "title": "to-Square"
+      },
+      {
+        "command": "caser.toParens",
+        "title": "to-Parens"
+      },
+      {
+        "command": "caser.toCurly",
+        "title": "to-Curly"
+      },
+      {
+        "command": "caser.toAngle",
+        "title": "to-Angle"
+      },
+      {
+        "command": "caser.toNone",
+        "title": "to-None"
+      }
+
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0"
+  }
+}

@@ -105,6 +105,34 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
+	const toBackTicked = vscode.commands.registerCommand('caser.toBackTicked', () => {	
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = '`' + text + '`';
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
+	const toUnBackTicked = vscode.commands.registerCommand('caser.toUnBackTicked', () => {	
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = text.replace(/`/g, '');
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
 	const toCurly = vscode.commands.registerCommand('caser.toCurly', () => {	
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -358,6 +386,8 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toUnQuoted);
 	context.subscriptions.push(toSQuoted);
 	context.subscriptions.push(toUnSQuoted);
+	context.subscriptions.push(toBackTicked);
+	context.subscriptions.push(toUnBackTicked);
 	context.subscriptions.push(loremIpsum);
 	context.subscriptions.push(toCurly);
 	context.subscriptions.push(toAngle);

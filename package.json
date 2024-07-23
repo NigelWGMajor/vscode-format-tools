@@ -67,6 +67,14 @@
         "title": "to-Quoted"
       },
       {
+        "command": "caser.toBackTicked",
+        "title": "to-BackTicked"
+      },
+      {
+        "command": "caser.toUnBackTicked",
+        "title": "to-UnBackTicked"
+      },
+      {
         "command": "caser.toUnSQuoted",
         "title": "to-UnSQuoted"
       },

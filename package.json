@@ -105,8 +105,17 @@
       {
         "command": "caser.toNone",
         "title": "to-None"
+      },
+      { "command": "caser.toTilded",
+        "title": "to-Tilded"
+      },
+      { "command": "caser.toStarred",
+        "title": "to-Starred" 
+      },
+      {
+        "command": "caser.toUnderScored",
+        "title": "to-UnderScored"
       }
-
     ]
   },
   "scripts": {

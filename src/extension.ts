@@ -175,6 +175,49 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
+	const toStarred = vscode.commands.registerCommand('caser.toStarred', () => {	
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = '*' + text + '*';
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
+	const toUnderScored = vscode.commands.registerCommand('caser.toUnderScored', () => {	
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = '_' + text + '_';
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
+	const toTilded = vscode.commands.registerCommand('caser.toTilded', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+			editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = '~' + text + '~';
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
+
 	const toAngle = vscode.commands.registerCommand('caser.toAngle', () => {	
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -394,6 +437,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toParens);
 	context.subscriptions.push(toSquare);
 	context.subscriptions.push(toNone);
+	context.subscriptions.push(toStarred);
+	context.subscriptions.push(toUnderScored);
+	context.subscriptions.push(toTilded);
 }
 
 // This method is called when your extension is deactivated

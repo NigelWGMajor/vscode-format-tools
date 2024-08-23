@@ -1,0 +1,43 @@
+# Keybindings for Caser
+--|--|--
+@ alt|   $ shift|   ¢ control
+**Naming**||undo
+to-Camelcase|   ¢-$-**C**| -
+to-KebabCase |  ¢-$-**K**| -
+to-PascalCase | ¢-$-**P**| -
+to-SnakeCase   |¢-$-**S**| -
+to-SpaceCase    | - |      ¢-@-**BS**
+**Quotes**||
+to-Escaped   |  ¢-$-**E** |  ¢-@-**e**
+to-Quoted    |  ¢-$-**"** |  $-@-**"**
+to-SQuoted   |  ¢-**'**   |  @-**'**
+to-Backtick  |  ¢-**\`** |   @-**`**
+**Case**||
+to-LowerCase  | ¢-$-**L** |-
+to-UpperCase  | ¢-$-**U** |-
+to-TitleCase  | ¢-$-**T** |-
+**Wrappers**||
+to-Angle   |    ¢-$-**<** |-
+to-Curly   |    ¢-$-**{** |-
+to-Parens  |    ¢-$-**(** |-
+to-Square  |    ¢-****[** |-
+to-Tilde   |    ¢-$-**~** |-
+to-Star    |    ¢-$-***** |-
+to-UnderScore | ¢-s-**_**  |-
+to-None    | - | ¢-@-**n**
+**Lorem**||
+LoremIpsum |    ¢-@-**L**|-
+
+## Combine with these:
+--|--
+alt click:   | multiple cursors
+alt dbl-click:  | multiple words
+alt shift:    | rectangular select
+home:        | start of line
+end:         | end of line
+control arrow:  | to next start/end of word
+conrtol shift arrow:|  select all to next start/end of word
+shift arrow:  | select more in direction
+alt arrow:   | move up/down
+alt shift arrow: |  copy up/down
+

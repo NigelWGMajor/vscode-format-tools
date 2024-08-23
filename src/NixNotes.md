@@ -1,11 +1,13 @@
 [ref](N:\_NixNotes\HowEye\vscode-extension-tutorials.md)
 
+[deep ref](..\vsc-extension-quickstart.md)
+
 To regenerate the vsix package:
 
 1. Bump the version in the package.json file
 2. From the `caser` folder, run `vsce package` in the termninal
 
-To install in anoyther instance:
+To install in another instance:
 
 Install the vsix from the extensinos tab, menu ite, "install from vsix"
 
@@ -14,4 +16,44 @@ To debug right here:
 Set a breakpoint wherever you want to test (typically in the extension.ts file)
 From the Debug tabm `Run Extension` will open a new window with thextensin running in it!
 
+## To add a new endpoint
 
+1. The extension.js file holds the extension! 
+
+2. the function `activate` near l:8 defines the functions that do the work (e.g. l:28 `function snakeCase(str:string)`)
+
+3. later there will be a constant that defines a command handler that uses that function, and maybe others, e.g. l:227
+
+```ts
+const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        const document = editor.document;
+        const selections = editor.selections;
+        editor.edit(builder => {
+            for (const selection of selections) {
+                const text = document.getText(selection);
+                const newText = snakeCase(text);
+                builder.replace(selection, newText);
+            }
+        });
+    }
+);
+```
+
+4. Below this, we push the command substription, e.g. line 419
+    `context.subscriptions.push(toSnakeCase);`
+    This registers the commands to the context.subscriptions array, which ensures that these are properly disposed when the extension is deactivated. This is a standard VSCode pattern, especially important for event listeners.
+
+5. The package.json file defines the commands as related to their names in the command palette. e.g. l:41
+
+```json
+{
+   "command": "caser.toSnakeCase",
+   "title": "to-Snake"
+},
+```
+
+Note how the command matches the command registered in part 3, while the title is what shows in the command pallete.
+
+6. To make the command useful, it should be bound to a keystroke in which case the key-cheatsheet might need to be updated. This may vary environment to environmemnt so is not strictly part of the code, just a reccomendataion.

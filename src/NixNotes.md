@@ -9,12 +9,12 @@ To regenerate the vsix package:
 
 To install in another instance:
 
-Install the vsix from the extensinos tab, menu ite, "install from vsix"
+Install the vsix from the extensions tab, menu ite, "install from vsix"
 
 To debug right here:
 
 Set a breakpoint wherever you want to test (typically in the extension.ts file)
-From the Debug tabm `Run Extension` will open a new window with thextensin running in it!
+From the Debug tab, `Run Extension` will open a new window with the extension running in it!
 
 ## To add a new endpoint
 
@@ -57,3 +57,40 @@ const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
 Note how the command matches the command registered in part 3, while the title is what shows in the command pallete.
 
 6. To make the command useful, it should be bound to a keystroke in which case the key-cheatsheet might need to be updated. This may vary environment to environmemnt so is not strictly part of the code, just a reccomendataion.
+
+### Repair
+
+Had issues running in debug mode
+
+- running with F5 srtarted but then died
+- extensions file was unable to resolve vscode reference
+
+Solution:
+
+- version of VScode has changed, but no the entries in Package.json / Package_lock.json
+- tried to get @latest, which is 1.92.2
+- needed to roll back to 1.92.0 as the .2 version is a beta.
+- evidence:
+
+=> npm list @types/vscode
+caser@1.0.2 N:\_NixNotes\caser
+└── (empty)
+
+=> npm install vscode@1.92.2       
+npm ERR! code ETARGET
+npm ERR! notarget No matching version found for @types/vscode@^1.92.2.
+npm ERR! notarget In most cases you or one of your dependencies are requesting
+npm ERR! notarget a package version that doesn't exist. +
+
+=>npm install @types/vscode@1.92.0
+npm ERR! Invalid Version: ^1.92.2
+
+Solutionn:
+=>npm uninstall @types/vscode
+=>npm install @types/vscode@1.92.0
+=>npm list @types/vscode          
+caser@1.0.2 N:\_NixNotes\caser
+└── @types/vscode@1.92.0
+=>npm install
+
+Then F5 works.

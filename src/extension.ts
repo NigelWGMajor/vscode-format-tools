@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { unescape } from 'querystring';
+// import { unescape } from 'querystring';
 import * as vscode from 'vscode';
 
 // This method is called when your extension is activated
@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 	function snakeCase(str:string) {
 		return str && (str.match(
 			/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g) ?? []) 
-			 .map(s => s.toLowerCase())
+			.map(s => s.toLowerCase())
 			.join('_');
 	}
 	function kebabCase(str:string) {
@@ -62,7 +62,17 @@ export function activate(context: vscode.ExtensionContext) {
 	function unEscape(str: string) {
 		return str.replace(/\\\"/g, '"');
 	}
-
+    function clear(str: string) {
+		if (str.startsWith('o-+|') && str.endsWith('|+-o')) {
+			return str.substring(4, str.length - 8);
+		}
+		else {
+			return str;
+		}
+	}
+	function secure(str: string) {
+		return 'o-+|' + str + '|+-o';	
+	}
 	const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {	
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -414,6 +424,34 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
+	const toClear = vscode.commands.registerCommand('caser.toClear', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = clear(text);
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
+	const toSecure = vscode.commands.registerCommand('caser.toSecure', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = secure(text);
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
 
 	context.subscriptions.push(toCamelCase);
 	context.subscriptions.push(toSnakeCase);
@@ -440,7 +478,10 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toStarred);
 	context.subscriptions.push(toUnderScored);
 	context.subscriptions.push(toTilded);
+	context.subscriptions.push(toClear);
+	context.subscriptions.push(toSecure);
+
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+// export function deactivate() {}

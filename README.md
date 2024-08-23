@@ -4,7 +4,8 @@ This is the README for extension "caser" version 1.0.2.
 
 ## Features
 
-This is a test extension providing some text editing ability.
+This is a test extension providing some text editing/mocking ability. 
+
 
 ### Casing:
 
@@ -46,3 +47,8 @@ This is a test extension providing some text editing ability.
 ### Dummy text
 
     LoremIpsum
+
+### Encryption
+
+    to-Clear
+    to-Secure

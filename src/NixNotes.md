@@ -16,7 +16,7 @@ To debug right here:
 Set a breakpoint wherever you want to test (typically in the extension.ts file)
 From the Debug tab, `Run Extension` will open a new window with the extension running in it!
 
-## To add a new endpoint
+## To add a new endpoint 
 
 1. The extension.js file holds the extension! 
 
@@ -94,3 +94,12 @@ caser@1.0.2 N:\_NixNotes\caser
 =>npm install
 
 Then F5 works.
+
+### Updates needed
+
+Install crypto using 
+
+
+=>npm install crypto-js
+
+=>npm i --save-dev @types/crypto-js

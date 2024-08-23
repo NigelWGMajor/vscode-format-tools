@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 // import { unescape } from 'querystring';
 import * as vscode from 'vscode';
+import * as crypto from 'crypto-js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -62,17 +63,28 @@ export function activate(context: vscode.ExtensionContext) {
 	function unEscape(str: string) {
 		return str.replace(/\\\"/g, '"');
 	}
+	const head = '<>-<';
+	const tail = '>-<>';
     function clear(str: string) {
-		if (str.startsWith('o-+|') && str.endsWith('|+-o')) {
-			return str.substring(4, str.length - 8);
+		if (str.startsWith(head) && str.endsWith(tail)) {
+			return crypto.enc.Base64.parse(str.substring(head.length, str.length -tail.length)).toString(crypto.enc.Utf8);
 		}
 		else {
 			return str;
 		}
 	}
-	function secure(str: string) {
-		return 'o-+|' + str + '|+-o';	
+	function flip(str: string) {
+		if (str.startsWith(head) && str.endsWith(tail)) {
+			return clear(str);
+		}
+		else {
+			return secure(str);
+		}
 	}
+	function secure(str: string) {
+		return head + crypto.enc.Utf8.parse(str).toString(crypto.enc.Base64) + tail;
+	}
+
 	const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {	
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -418,7 +430,7 @@ export function activate(context: vscode.ExtensionContext) {
 			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
-					const newText = text + ' Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tincidunt metus in justo pretium congue. Donec lobortis nunc a sapien tempor, in luctus mi volutpat. Sed convallis lacus dolor, in iaculis purus pharetra id. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a bibendum nisi. Aliquam augue urna, commodo a dui pharetra, suscipit laoreet mauris. Aliquam ac orci a neque dignissim hendrerit.';
+					const newText = text + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tincidunt metus in justo pretium congue. Donec lobortis nunc a sapien tempor, in luctus mi volutpat. Sed convallis lacus dolor, in iaculis purus pharetra id. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a bibendum nisi. Aliquam augue urna, commodo a dui pharetra, suscipit laoreet mauris. Aliquam ac orci a neque dignissim hendrerit.';
 					builder.replace(selection, newText);
 				}
 			});
@@ -452,6 +464,20 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
+	const toFlip = vscode.commands.registerCommand('caser.toFlip', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selections = editor.selections;
+            editor.edit(builder => {
+				for (const selection of selections) {
+					const text = document.getText(selection);
+					const newText = flip(text);
+					builder.replace(selection, newText);
+				}
+			});
+		}
+	});
 
 	context.subscriptions.push(toCamelCase);
 	context.subscriptions.push(toSnakeCase);
@@ -480,7 +506,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toTilded);
 	context.subscriptions.push(toClear);
 	context.subscriptions.push(toSecure);
-
+	context.subscriptions.push(toFlip);
 }
 
 // This method is called when your extension is deactivated

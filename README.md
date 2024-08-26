@@ -52,3 +52,4 @@ This is a test extension providing some text editing/mocking ability.
 
     to-Clear
     to-Secure
+    to-Flip (uses local environment variable VSCODE_KEY)

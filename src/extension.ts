@@ -3,6 +3,7 @@
 // import { unescape } from 'querystring';
 import * as vscode from 'vscode';
 import * as crypto from 'crypto-js';
+import { getEnvironmentData } from 'worker_threads';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -26,20 +27,20 @@ export function activate(context: vscode.ExtensionContext) {
 			return index === 0 ? word.toLowerCase() : word.toUpperCase();
 		}).replace(/\s+/g, '');
 	}
-	function snakeCase(str:string) {
+	function snakeCase(str: string) {
 		return str && (str.match(
-			/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g) ?? []) 
+			/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g) ?? [])
 			.map(s => s.toLowerCase())
 			.join('_');
 	}
-	function kebabCase(str:string) {
+	function kebabCase(str: string) {
 		return str && (str.match(
 			/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g) ?? [])
 			.map(s => s.toLowerCase())
 			.join('-');
 	}
 	function pascallCase(str: string) {
-    	return str.replace(/[-_]+/g, ' ').replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+		return str.replace(/[-_]+/g, ' ').replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
 			return index === 0 ? word.toUpperCase() : word.toUpperCase();
 		}).replace(/\s+/g, '');
 	}
@@ -57,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 	function spaceCase(str: string) {
 		return str.replace(/(?<=[a-z])(?=[A-Z])/g, ' ').replace(/[-_]+/g, ' ');
 	};
-    function escape(str: string) {
+	function escape(str: string) {
 		return str.replace(/[\"]+/g, '\\"');
 	}
 	function unEscape(str: string) {
@@ -65,32 +66,47 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 	const head = '<>-<';
 	const tail = '>-<>';
-    function clear(str: string) {
+	function clear(str: string) {
 		if (str.startsWith(head) && str.endsWith(tail)) {
-			return crypto.enc.Base64.parse(str.substring(head.length, str.length -tail.length)).toString(crypto.enc.Utf8);
+			return crypto.enc.Base64.parse(str.substring(head.length, str.length - tail.length)).toString(crypto.enc.Utf8);
 		}
 		else {
 			return str;
 		}
 	}
+	function clearSafe(str: string) {
+		let local = process.env.VSCODE_KEY;
+		if (local === undefined) {
+			local = 'lbfpjhblfdahpfr';
+		}
+		const decrypted = crypto.AES.decrypt(str, local);
+		return decrypted.toString(crypto.enc.Utf8);
+	}
+	function secureSafe(str: string) {
+		let local = process.env.VSCODE_KEY?.toString();
+		if (local === undefined) {
+			local = 'lbfpjhblfdahpfr';
+		}
+		return head + crypto.AES.encrypt(str, local).toString() + tail;
+	}
 	function flip(str: string) {
 		if (str.startsWith(head) && str.endsWith(tail)) {
-			return clear(str);
+			return clearSafe(str.substring(head.length, str.length - tail.length));
 		}
 		else {
-			return secure(str);
+			return secureSafe(str);
 		}
 	}
 	function secure(str: string) {
 		return head + crypto.enc.Utf8.parse(str).toString(crypto.enc.Base64) + tail;
 	}
 
-	const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {	
+	const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '"' + text + '"';
@@ -99,12 +115,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toUnQuoted = vscode.commands.registerCommand('caser.toUnQuoted', () => {	
+	const toUnQuoted = vscode.commands.registerCommand('caser.toUnQuoted', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = text.replace(/\"/g, '');
@@ -113,12 +129,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toSQuoted = vscode.commands.registerCommand('caser.toSQuoted', () => {	
+	const toSQuoted = vscode.commands.registerCommand('caser.toSQuoted', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '\'' + text + '\'';
@@ -127,12 +143,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toBackTicked = vscode.commands.registerCommand('caser.toBackTicked', () => {	
+	const toBackTicked = vscode.commands.registerCommand('caser.toBackTicked', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '`' + text + '`';
@@ -141,12 +157,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toUnBackTicked = vscode.commands.registerCommand('caser.toUnBackTicked', () => {	
+	const toUnBackTicked = vscode.commands.registerCommand('caser.toUnBackTicked', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = text.replace(/`/g, '');
@@ -155,12 +171,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toCurly = vscode.commands.registerCommand('caser.toCurly', () => {	
+	const toCurly = vscode.commands.registerCommand('caser.toCurly', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '{' + text + '}';
@@ -169,12 +185,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toParens = vscode.commands.registerCommand('caser.toParens', () => {	
+	const toParens = vscode.commands.registerCommand('caser.toParens', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '(' + text + ')';
@@ -183,12 +199,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toSquare = vscode.commands.registerCommand('caser.toSquare', () => {	
+	const toSquare = vscode.commands.registerCommand('caser.toSquare', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '[' + text + ']';
@@ -197,12 +213,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toStarred = vscode.commands.registerCommand('caser.toStarred', () => {	
+	const toStarred = vscode.commands.registerCommand('caser.toStarred', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '*' + text + '*';
@@ -211,12 +227,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toUnderScored = vscode.commands.registerCommand('caser.toUnderScored', () => {	
+	const toUnderScored = vscode.commands.registerCommand('caser.toUnderScored', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '_' + text + '_';
@@ -240,12 +256,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	const toAngle = vscode.commands.registerCommand('caser.toAngle', () => {	
+	const toAngle = vscode.commands.registerCommand('caser.toAngle', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = '<' + text + '>';
@@ -254,12 +270,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toNone = vscode.commands.registerCommand('caser.toNone', () => {	
+	const toNone = vscode.commands.registerCommand('caser.toNone', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = text.substring(1, text.length - 1);
@@ -268,12 +284,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toUnSQuoted = vscode.commands.registerCommand('caser.toUnSQuoted', () => {	
+	const toUnSQuoted = vscode.commands.registerCommand('caser.toUnSQuoted', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = text.replace(/\'/g, '');
@@ -282,12 +298,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toCamelCase = vscode.commands.registerCommand('caser.toCamelCase', () => {	
+	const toCamelCase = vscode.commands.registerCommand('caser.toCamelCase', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = camelCase(text);
@@ -296,12 +312,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {	
+	const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = snakeCase(text);
@@ -310,12 +326,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toKebabCase = vscode.commands.registerCommand('caser.toKebabCase', () => {	
+	const toKebabCase = vscode.commands.registerCommand('caser.toKebabCase', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = kebabCase(text);
@@ -324,12 +340,12 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	const toPascalCase = vscode.commands.registerCommand('caser.toPascalCase', () => {	
+	const toPascalCase = vscode.commands.registerCommand('caser.toPascalCase', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = pascallCase(text);
@@ -343,7 +359,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = upperCase(text);
@@ -357,7 +373,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = lowerCase(text);
@@ -371,7 +387,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = titleCase(text);
@@ -385,7 +401,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = spaceCase(text);
@@ -399,7 +415,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = escape(text);
@@ -413,7 +429,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = unEscape(text);
@@ -441,7 +457,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = clear(text);
@@ -455,7 +471,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = secure(text);
@@ -469,7 +485,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
-            editor.edit(builder => {
+			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
 					const newText = flip(text);

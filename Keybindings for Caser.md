@@ -23,10 +23,16 @@ to-Parens  |    ¢-$-**(** |-
 to-Square  |    ¢-****[** |-
 to-Tilde   |    ¢-$-**~** |-
 to-Star    |    ¢-$-***** |-
-to-UnderScore | ¢-s-**_**  |-
+to-UnderScore | ¢-$-**_**  |-
 to-None    | - | ¢-@-**n**
 **Lorem**||
 LoremIpsum |    ¢-@-**L**|-
+**Encryption**
+to-Secure 
+to-Clear
+to-Flip |  ¢-$-/
+
+Note: to-Flip uses a local environment variable as a passkey: VSCODE_KEY
 
 ## Combine with these:
 --|--

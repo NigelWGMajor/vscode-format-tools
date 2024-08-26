@@ -9,7 +9,7 @@ To regenerate the vsix package:
 
 To install in another instance:
 
-Install the vsix from the extensions tab, menu ite, "install from vsix"
+Install the vsix from the extensions tab, menu item, "install from vsix"
 
 To debug right here:
 

@@ -4,45 +4,48 @@ This is the README for extension "caser" version 1.0.2.
 
 ## Features
 
-This is a test extension providing some text editing/mocking ability. 
+This is a text editor extension providing enhanced text editing. Multiple selections are accepted: where noted, defaults will be applied when there is no selection:
 
+w: defaults to current word 
+l: defaults to current line 
 
 ### Casing:
 
-    to-UpperCase
-    to-LowerCase
-    to-TitleCase
+    to-UpperCase  (w) UPPER CASE 
+    to-LowerCase  (w) lower case
+    to-TitleCase  (w) Title Case
     
-    to-CamelCase
-    to-SnakeCase
-    to-KebabCase
-    to-PascalCase
-    to-SpaceCase
+    to-CamelCase  (w) camelcase
+    to-SnakeCase  (w) snake_case
+    to-KebabCase  (w) kebab-case
+    to-PascalCase (w) PascalCase
+    to-SpaceCase  (l) space case
 
-### Escaping quotes    
+### Formatting    
     
-    to-Escaped
-    to-UnEscaped
+    to-Escaped     (l) 
+    to-UnEscaped   (l) 
+    to-Compact     (l) (removes most white space including newlines)
 
 ### Quoting
     
-    to-Quoted
-    to-SQuoted
-    to-BackTick
-    to-UnQuoted
-    to-UnSQuoted
-    to-UnBackTick
+    to-Quoted      (l) ""
+    to-SQuoted     (l) ''
+    to-BackTick    (l) ``
+    to-UnQuoted    (l) 
+    to-UnSQuoted   (l) 
+    to-UnBackTick  (l)
 
 ### Wrapping
 
-    to-Curly
-    to-Angle
-    to-Parens
-    to-Square
-    to-Star
-    to-UnderScore
-    to-Tilde
-    to-None
+    to-Curly       (l) { }
+    to-Angle       (w) < >
+    to-Parens      (l) ( )
+    to-Square      (l) [ ]
+    to-Star        (w) * *
+    to-UnderScore  (w) _ _
+    to-Tilde       (l) ~ ~
+    to-None        (l)
 
 ### Dummy text
 
@@ -50,6 +53,25 @@ This is a test extension providing some text editing/mocking ability.
 
 ### Encryption
 
-    to-Clear
-    to-Secure
-    to-Flip (uses local environment variable VSCODE_KEY)
+    to-Clear    decrypt
+    to-Secure   encrypt
+    to-Flip  (uses local environment variable VSCODE_KEY as seed) (l)
+
+### Misc
+
+    to-Pad      Pads with spaces to widest part of selection
+                Mark with icon (may customize in settings)
+    mark-Dot    🔴🟠🟡🟢🔵🟣⚪⚫
+    mark-Square 🟥🟧🟨🟩🟦🟪⬜🔳
+    mark-Numbers0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣
+    mark-Action 🤔📚💬💡🚧🛠️⚗️⚠️🎗️
+    mark-State  ❓⁉️‼️❗✖️✔️❎✅🎟️⌛    
+
+### Exchange
+
+    to-Swap     Is context driven.
+
+    Cursor between words, no selection: exchanges the surrounding words if on the same line
+    Selected word(s): exchanges the word before and the word after
+    In a word, no selection: exchanges the letters before and after the cursor
+    in a word, letters selected: exchanges the start of the word and the end, leaving the seected portion intact

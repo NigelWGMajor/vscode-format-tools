@@ -5,7 +5,9 @@
 To regenerate the vsix package:
 
 1. Bump the version in the package.json file
-2. From the `caser` folder, run `vsce package` in the termninal
+2. From the `caser` folder, run `vsce package` in the terminal
+   - if this doesn't work, you may need to run `npm install -g @vscode/vsce`@vscode/
+   
 
 To install in another instance:
 
@@ -20,9 +22,9 @@ From the Debug tab, `Run Extension` will open a new window with the extension ru
 
 1. The extension.js file holds the extension! 
 
-2. the function `activate` near l:8 defines the functions that do the work (e.g. l:28 `function snakeCase(str:string)`)
+2. The function `activate` near l:8 defines the functions that do the work (e.g. l:28 `function snakeCase(str:string)`)
 
-3. later there will be a constant that defines a command handler that uses that function, and maybe others, e.g. l:227
+3. Later there will be a constant that defines a command handler that uses that function, and maybe others, e.g. l:227
 
 ```ts
 const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
@@ -41,7 +43,7 @@ const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
 );
 ```
 
-4. Below this, we push the command substription, e.g. line 419
+4. Below this, we push the command subscription, e.g. line 419
     `context.subscriptions.push(toSnakeCase);`
     This registers the commands to the context.subscriptions array, which ensures that these are properly disposed when the extension is deactivated. This is a standard VSCode pattern, especially important for event listeners.
 
@@ -54,20 +56,20 @@ const toSnakeCase = vscode.commands.registerCommand('caser.toSnakeCase', () => {
 },
 ```
 
-Note how the command matches the command registered in part 3, while the title is what shows in the command pallete.
+Note how the command matches the command registered in part 3, while the title is what shows in the command palette.
 
-6. To make the command useful, it should be bound to a keystroke in which case the key-cheatsheet might need to be updated. This may vary environment to environmemnt so is not strictly part of the code, just a reccomendataion.
+6. To make the command useful, it should be bound to a keystroke in which case the key-cheatsheet might need to be updated. This may vary environment to environment so is not strictly part of the code, just a recommendation.
 
 ### Repair
 
 Had issues running in debug mode
 
-- running with F5 srtarted but then died
+- running with F5 started but then died
 - extensions file was unable to resolve vscode reference
 
 Solution:
 
-- version of VScode has changed, but no the entries in Package.json / Package_lock.json
+- version of VScode has changed, but not the entries in Package.json / Package_lock.json
 - tried to get @latest, which is 1.92.2
 - needed to roll back to 1.92.0 as the .2 version is a beta.
 - evidence:
@@ -85,7 +87,7 @@ npm ERR! notarget a package version that doesn't exist. +
 =>npm install @types/vscode@1.92.0
 npm ERR! Invalid Version: ^1.92.2
 
-Solutionn:
+Solution:
 =>npm uninstall @types/vscode
 =>npm install @types/vscode@1.92.0
 =>npm list @types/vscode          

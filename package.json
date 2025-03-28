@@ -254,6 +254,10 @@
       {
         "command": "caser.toTrim",
         "title": "to-Trim"
+      },
+      {
+        "command": "caser.toTest",
+        "title": "to-Test"
       }
     ]
   },

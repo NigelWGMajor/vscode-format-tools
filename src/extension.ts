@@ -205,6 +205,68 @@ export function activate(context: vscode.ExtensionContext) {
 	
 		editor.selections = newSelections;
 	}
+    function AdjustSelectionsForPrefix(
+		editor: vscode.TextEditor
+	) {
+		const document = editor.document;
+		const selections = editor.selections;
+		const newSelections: vscode.Selection[] = [];
+		defaultToLineSelected(editor);
+		for (const selection of selections) {
+			const startLine = selection.start.line;
+			const endLine = selection.end.line;
+			for (let line = startLine; line <= endLine; line++) {
+				const lineRange = document.lineAt(line).range;
+				if (lineRange.isEmpty) {
+					continue; // skip empty lines
+				}
+                // skip over any combination at the start of the line of spaces and tabs
+				const lineText = document.getText(lineRange);	
+				// use regex to skip over any combination of tabs or spaces, followed by one of
+				// '* ', '- ', or a number followed by a decimal point and a space, or a sequence of hashes
+				const regex = /^[ \t]*(\* |\+ |- |#+ |\d+\.\s)/;
+				const match = lineText.match(regex);
+				if (match) {
+					// if we have a match, adjust the start of the selection to skip over it
+					const start = lineRange.start.translate(0, match[0].length);
+					const end = lineRange.end;
+					newSelections.push(new vscode.Selection(start, end));
+				}
+				else {
+					// if no match, just use the whole line
+					newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
+				}
+    		}
+		}
+        // set the editor to the new selections
+		editor.selections = newSelections;
+	}
+    function DoSymbols(
+		editor: vscode.TextEditor,
+		fromSet: string[]
+	) {
+		const document = editor.document;
+		const selections = editor.selections;
+		editor.edit(builder => {
+			for (const selection of selections) {
+				// Get the text of the selection
+				const text = document.getText(selection);
+				let newText = text;
+		
+				for (const symbol of fromSet) {
+					// If the text starts with the symbol, replace it
+					if (newText.startsWith(symbol)) {
+						let ix = (fromSet.indexOf(symbol) + 1) % fromSet.length;
+						newText = newText.replace(symbol, fromSet[ix]);
+						break; // Exit the loop once a match is found
+					}
+				}
+		
+				// Replace the selection with the updated text
+				builder.replace(selection, newText);
+			}
+		});
+	}
 	function processAtSelections(
 		editor: vscode.TextEditor,
 		setA: string[],
@@ -1006,6 +1068,15 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 	);
+	const toTest = vscode.commands.registerCommand('caser.toTest', () => {
+        const editor = vscode.window.activeTextEditor;
+		const config = vscode.workspace.getConfiguration('caser');
+		const setB = config.get<string[]>('squareIcons', ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️"]);
+		if (editor) {
+			AdjustSelectionsForPrefix(editor);
+			DoSymbols(editor,setB);
+		}
+	});
 
 	// ////////////////////////////////////////////////////////////
 	// TODO: 02
@@ -1049,6 +1120,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(markNumber);
 	context.subscriptions.push(toPad);
 	context.subscriptions.push(toTrim);
+	context.subscriptions.push(toTest);
 }
 
 // This method is called when your extension is deactivated

@@ -15,7 +15,7 @@ l: defaults to current line
     to-LowerCase  (w) lower case
     to-TitleCase  (w) Title Case
     
-    to-CamelCase  (w) camelcase
+    to-CamelCase  (w) camelCase
     to-SnakeCase  (w) snake_case
     to-KebabCase  (w) kebab-case
     to-PascalCase (w) PascalCase
@@ -25,7 +25,10 @@ l: defaults to current line
     
     to-Escaped     (l) 
     to-UnEscaped   (l) 
+    to-Pad         (l) Pads with spaces to widest part of selection
     to-Compact     (l) (removes most white space including newlines)
+ 🔴   to-leading     (l) pushes a comma-separated list to leading commas multiline
+ 🔴   to-trailing    (l) pushes a comma-separated list to training commas multiline
 
 ### Quoting
     
@@ -55,17 +58,30 @@ l: defaults to current line
 
     to-Clear    decrypt
     to-Secure   encrypt
-    to-Flip  (uses local environment variable VSCODE_KEY as seed) (l)
+    to-Flip  (uses local environment variable VSCODE_KEY as seed) [^l]
 
-### Misc
+### Marking
 
-    to-Pad      Pads with spaces to widest part of selection
-                Mark with icon (may customize in settings)
-    mark-Dot    🔴🟠🟡🟢🔵🟣⚪⚫
-    mark-Square 🟥🟧🟨🟩🟦🟪⬜🔳
-    mark-Numbers0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣
-    mark-Action 🤔📚💬💡🚧🛠️⚗️⚠️🎗️
-    mark-State  ❓⁉️‼️❗✖️✔️❎✅🎟️⌛    
+🔴   to-mark:    🟥🟨🟩🟦✅❎ <-- if a header 
+🔴   to-mark:    🔴🟡🟢🔵✔️✖️ <-- otherwise>
+🔴   to-query:   ❓⁉️❌❗‼️🛑
+🔴   to-step:    💭🔎👋💡🚧🎁
+🔴   to-tag:     🎟️🔀⚗️📚📆🔒 
+🔴   to-flag:    ⚠️🪲🩹⏳🎗️🕊️
+🔴   to-link:    [🔗]()
+🔴               [🔖](#)
+🔴               [🎟️]()
+🔴               [🔀]()
+🔴               [ℹ️]()
+🔴               [⏪]()
+🔴               [⏩]()
+🔴   number:     0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟
+
+🔴   to-push      pushes content
+                 - if no link in the first line, pushes to the end of the document
+                 - if a header, places a link to the header and moves to the end
+                 - if a file link, moves to that file
+
 
 ### Exchange
 

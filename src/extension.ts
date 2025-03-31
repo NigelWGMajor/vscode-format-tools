@@ -128,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	};
 	function stripWhiteSpace(text: string) {
-		return text.replace(/\s{2,100}/g, ' ');  
+		return text.replace(/\s{2,100}/g, ' ');
 	}
 	function FindMarked(editor: vscode.TextEditor | undefined) {
 		if (editor) {
@@ -166,32 +166,23 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	}
-	function safeChar(str: string) {
-		// convert to a codepoint and back
-		const code = str.codePointAt(0);
-		if (code === undefined) {
-			return '';
-		}
-		const char = String.fromCodePoint(code);
-		return char;
-	}
 	function processSelections(
 		editor: vscode.TextEditor,
 		setA: string[],
 		newSelections: vscode.Selection[]
 	) {
 		const document = editor.document;
-	
+
 		editor.edit(builder => {
 			for (const selection of newSelections) {
 				const line = document.getText(selection);
 				const characters = [...line];
 				const firstChar = characters[0];
-	
+
 				if (!firstChar) {
 					continue; // Skip empty lines
 				}
-	
+
 				const index = setA.indexOf(firstChar);
 				if (index >= 0) {
 					const newText = setA[(index + 1) % setA.length] + line.slice(firstChar.length);
@@ -202,10 +193,32 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		});
-	
+
 		editor.selections = newSelections;
 	}
-    function AdjustSelectionsForPrefix(
+	function RemoveSymbols(
+		editor: vscode.TextEditor,
+		fromSet: string[]
+	) {
+		const document = editor.document;
+
+		const selections = editor.selections;
+		editor.edit(builder => {
+			for (const selection of selections) {
+				defaultToLineSelected(editor);
+				// Get the text of the selection
+				const text = document.getText(selection);
+				let newText = text;
+				for (const symbol of fromSet) {
+					newText = newText.replace(symbol, '');
+				}
+				// Replace the selection with the updated text
+				builder.replace(selection, newText);
+			}
+		});
+	}
+
+	function AdjustSelectionsForPrefix(
 		editor: vscode.TextEditor
 	) {
 		const document = editor.document;
@@ -220,11 +233,11 @@ export function activate(context: vscode.ExtensionContext) {
 				if (lineRange.isEmpty) {
 					continue; // skip empty lines
 				}
-                // skip over any combination at the start of the line of spaces and tabs
-				const lineText = document.getText(lineRange);	
+				// skip over any combination at the start of the line of spaces and tabs
+				const lineText = document.getText(lineRange);
 				// use regex to skip over any combination of tabs or spaces, followed by one of
 				// '* ', '- ', or a number followed by a decimal point and a space, or a sequence of hashes
-				const regex = /^[ \t]*(\* |\+ |- |#+ |\d+\.\s)/;
+				const regex = /^[ \t]*(\* |\+ |- |#+ |> |\d+\.\s)/;
 				const match = lineText.match(regex);
 				if (match) {
 					// if we have a match, adjust the start of the selection to skip over it
@@ -236,12 +249,12 @@ export function activate(context: vscode.ExtensionContext) {
 					// if no match, just use the whole line
 					newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
 				}
-    		}
+			}
 		}
-        // set the editor to the new selections
+		// set the editor to the new selections
 		editor.selections = newSelections;
 	}
-    function DoSymbols(
+	function DoSymbols(
 		editor: vscode.TextEditor,
 		fromSet: string[]
 	) {
@@ -252,38 +265,122 @@ export function activate(context: vscode.ExtensionContext) {
 				// Get the text of the selection
 				const text = document.getText(selection);
 				let newText = text;
-		
+				let didReplace = false;
 				for (const symbol of fromSet) {
 					// If the text starts with the symbol, replace it
 					if (newText.startsWith(symbol)) {
 						let ix = (fromSet.indexOf(symbol) + 1) % fromSet.length;
 						newText = newText.replace(symbol, fromSet[ix]);
+						didReplace = true;
 						break; // Exit the loop once a match is found
 					}
 				}
-		
+				if (!didReplace) {
+					newText = fromSet[0] + ' ' + newText;
+				}
 				// Replace the selection with the updated text
 				builder.replace(selection, newText);
 			}
 		});
 	}
+	function selectWord(
+		editor: vscode.TextEditor,
+		selection: vscode.Selection
+	): vscode.Selection {
+		// if the current selection is empty, expand it
+		const word = editor.document.getWordRangeAtPosition(selection.start);
+		if (word) {
+			return new vscode.Selection(word.start, word.end);
+		}
+		return selection;
+	}
+	function selectSymbol(
+		editor: vscode.TextEditor,
+		selection: vscode.Selection,
+		insertedText: string
+	): vscode.Selection {
+		const sel2 = selectWord(editor, selection);
+		// find the symbol oin the selected text
+		const text = editor.document.getText(sel2);
+		const start = text.indexOf(insertedText);
+		const end = start + insertedText.length;
+		const startPos = sel2.start.translate(0, start);
+		const endPos = sel2.start.translate(0, end);
+		return new vscode.Selection(startPos, endPos);
+	}
+	function SelectAllAtLeft(
+		editor: vscode.TextEditor
+	) {
+		const selections = editor.selections;
+		const document = editor.document;
+		const newSelections: vscode.Selection[] = [];
+		for (const selection of selections) {
+			const startLine = selection.start.line;
+			const endLine = selection.end.line;
+			for (let line = startLine; line <= endLine; line++) {
+				const lineRange = document.lineAt(line).range;
+				newSelections.push(new vscode.Selection(lineRange.start, lineRange.start));
+			}
+		}
+		editor.selections = newSelections;
+	}
+	function doSymbolsInPlace(
+		editor: vscode.TextEditor,
+		fromSet: string[]
+	) {
+		const document = editor.document;
+		const selections = editor.selections;
+		const newSelections: vscode.Selection[] = [];
+		editor.edit(builder => {
+			for (const selection of selections) {
+				// Get the text of the selection
+				const text = document.getText(selection);
+				let position = selection.start.character;
+				let newText = text;
+				let didReplace = false;
+				var insertedText = '';
+				for (const symbol of fromSet) {
+					// If the text starts with the symbol, replace it
+					if (newText.startsWith(symbol)) {
+						let ix = (fromSet.indexOf(symbol) + 1) % fromSet.length;
+						insertedText = fromSet[ix];
+						newText = newText.replace(symbol, insertedText);
+						// move the selectio to the start and end of the inserted text
+						//position = new vscode.Selection(selection.start.translate(0, -1 * insertedText.length), selection.start,);
+						didReplace = true;
+						break; // Exit the loop once a match is found
+					}
+				}
+				if (!didReplace) {
+					newText = newText + fromSet[0];
+					//position = new vscode.Selection(selection.start.translate(0, -1 * insertedText.length), selection.start,);
+				}
+				// Replace the selection with the updated text
+				builder.replace(selection, newText);
+				// push a new selection starting at the original position and including the new text
+				newSelections.push(selectSymbol(editor, selection, insertedText));
+			}
+			editor.selections = newSelections;
+		});
+	}
+
 	function processAtSelections(
 		editor: vscode.TextEditor,
 		setA: string[],
 		newSelections: vscode.Selection[]
 	) {
 		const document = editor.document;
-	
+
 		editor.edit(builder => {
 			for (const selection of newSelections) {
 				const line = document.getText(selection);
 				const characters = [...line];
 				const firstChar = characters[0];
-	
+
 				if (!firstChar) {
 					continue; // Skip empty lines
 				}
-	
+
 				const index = setA.indexOf(firstChar);
 				if (index >= 0) {
 					const newText = setA[(index + 1) % setA.length] + line.slice(firstChar.length);
@@ -808,34 +905,17 @@ export function activate(context: vscode.ExtensionContext) {
 	const markQuery = vscode.commands.registerCommand('caser.markQuery', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
-		const setA = config.get<string[]>('queryIcons', ["❓", "⁉️", "❗", "‼️", "🆎", "🅰️", "🅱️"])
-			?.map(safeChar) ?? [];
+		const setA = config.get<string[]>('queryIcons', ["❓", "⁉️", "❗", "‼️", "🆎", "🅰️", "🅱️"]);
 		if (editor) {
-			const document = editor.document;
-			const selections = editor.selections;
-			const newSelections: vscode.Selection[] = [];
-			defaultToLineSelected(editor);
-			for (const selection of selections) {
-				const startLine = selection.start.line;
-				const endLine = selection.end.line;
-				for (let line = startLine; line <= endLine; line++) {
-					const lineRange = document.lineAt(line).range;
-					if (lineRange.isEmpty) {
-						continue; // skip empty lines
-					}
-					newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
-				}
-			}
-			processSelections(editor, setA, newSelections);
+			AdjustSelectionsForPrefix(editor);
+			DoSymbols(editor, setA);
 		}
 	});
 	const markLine = vscode.commands.registerCommand('caser.markLine', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
-		const setA = config.get<string[]>('squareIcons', ["🟥", "🟨", "🟩", "🟦", "✅", "❎"])
-			?.map(safeChar) ?? [];
-		const setB = config.get<string[]>('circleIcons', ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️"])
-			?.map(safeChar) ?? [];
+		const setA = config.get<string[]>('squareIcons', ["🟥", "🟨", "🟩", "🟦", "✅", "❎"]);
+		const setB = config.get<string[]>('dotIcons', ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️"]);
 		if (editor) {
 			const document = editor.document;
 			const selections = editor.selections;
@@ -856,51 +936,13 @@ export function activate(context: vscode.ExtensionContext) {
 			editor.edit(builder => {
 				for (const selection of newSelections) {
 					var line = document.getText(selection);
-					var prefix = '';
-					const isHeading = line.startsWith('#'); 
-					var ix = 0;
+					const isHeading = line.startsWith('#');
+					AdjustSelectionsForPrefix(editor);
 					if (isHeading) {
-						while (line.charAt(ix) === '#') {
-							ix++;
-						}
-						prefix = line.substring(0, ix) + ' '; 
-					}
-					if (line[ix] === ' ') {
-						ix = ix + 1;
-					}
-					line = line.substring(ix);
-				    const characters = [...line];
-					if (!characters) {
-						continue; // skip empty lines	
-					}
-					const firstChar = characters[0];
-					if (!firstChar) {
-						continue; // skip empty lines
-					}
-					const firstCharLength = firstChar.length;
-					var index = -1;
-					if (isHeading) {
-						index = setA.indexOf(firstChar);
+						DoSymbols(editor, setA);
 					}
 					else {
-						index = setB.indexOf(firstChar);
-					}
-					if (index >= 0) {
-						if (isHeading) {
-							characters[0] = setA[(index + 1) % setA.length];
-						}
-						else {	
-							characters[0] = setB[(index + 1) % setB.length];
-						}
-					const newText = prefix + characters.join('');
-					builder.replace(selection, newText);
-					}	
-					else {
-						const newText =
-							isHeading ?
-								prefix + setA[0] + ' ' + line :
-								setB[0] + ' ' + line;
-						builder.replace(selection, newText);
+						DoSymbols(editor, setB);
 					}
 				}
 			});
@@ -910,100 +952,123 @@ export function activate(context: vscode.ExtensionContext) {
 	const markNumber = vscode.commands.registerCommand('caser.markNumber', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
-		const setN = config.get<string[]>('numberIcons', [
-			"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"])
-			?.map(safeChar) ?? [];
-		    if (editor) {
-				const document = editor.document;
-				const selections = editor.selections;
-				const newSelections: vscode.Selection[] = [];
-				defaultToLineSelected(editor);
-				for (const selection of selections) {
-					const startLine = selection.start.line;
-					const endLine = selection.end.line;
-					for (let line = startLine; line <= endLine; line++) {
-						const lineRange = document.lineAt(line).range;
-						if (lineRange.isEmpty) {
-							continue; // skip empty lines
-						}
-						newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
-					}
-				}
-				processAtSelections(editor, setN, newSelections);
-			}
-		});
+		const setN = config.get<string[]>('numberIcons', ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]);
+		if (editor) {
+			//AdjustSelectionsForPrefix(editor);
+			doSymbolsInPlace(editor, setN);
+		}
+	});
 	const markFlag = vscode.commands.registerCommand('caser.markFlag', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setA = config.get<string[]>('flagIcons', [
-			"📓", "⚠️", "🎗️", "🔒", "⚗️", "🛠️"])
-			?.map(safeChar) ?? [];
-			if (editor) {
-				const document = editor.document;
-				const selections = editor.selections;
-				const newSelections: vscode.Selection[] = [];
-				defaultToLineSelected(editor);
-				for (const selection of selections) {
-					const startLine = selection.start.line;
-					const endLine = selection.end.line;
-					for (let line = startLine; line <= endLine; line++) {
-						const lineRange = document.lineAt(line).range;
-						if (lineRange.isEmpty) {
-							continue; // skip empty lines
-						}
-						newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
-					}
-				}
-				processSelections(editor, setA, newSelections);
-			}
-		});
-	const markStage = vscode.commands.registerCommand('caser.markStage', () => {
+			"📓", "⚠️", "🎗️", "🔒", "⚗️", "🛠️"]);
+		if (editor) {
+			AdjustSelectionsForPrefix(editor);
+			DoSymbols(editor, setA);
+		}
+	});
+	const markStep = vscode.commands.registerCommand('caser.markStage', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setA = config.get<string[]>('stageIcons', [
-			"💭", "🧭", "👋", "💡", "🚧", "🎁"])
-			?.map(safeChar) ?? [];
-			if (editor) {
-				const document = editor.document;
-				const selections = editor.selections;
-				const newSelections: vscode.Selection[] = [];
-				defaultToLineSelected(editor);
+			"💭", "🧭", "👋", "💡", "🚧", "🎁"]);
+		if (editor) {
+			AdjustSelectionsForPrefix(editor);
+			DoSymbols(editor, setA);
+		}
+	});
+	const markLink = vscode.commands.registerCommand('caser.markLink', () => {
+		const editor = vscode.window.activeTextEditor;
+		const config = vscode.workspace.getConfiguration('caser');
+		const setA = config.get<string[]>('linkIcons', ["[🔗]()", "[🔖](#)", "[🎟️]()", "[🔀]()", "[ℹ️]()", "[⏪]()", "[⏩]()"]);
+		if (editor) {
+			AdjustSelectionsForPrefix(editor);
+			DoSymbols(editor, setA);
+		}
+	});
+	const markNone = vscode.commands.registerCommand('caser.markNone', () => {
+		const editor = vscode.window.activeTextEditor;
+		const config = vscode.workspace.getConfiguration('caser');
+		const setA = config.get<string[]>('squareIcons', []);
+		setA.push(...config.get<string[]>('dotIcons', []));
+		setA.push(...config.get<string[]>('queryIcons', []));
+		setA.push(...config.get<string[]>('stepIcons', []));
+		setA.push(...config.get<string[]>('numberIcons', []));
+		setA.push(...config.get<string[]>('tagIcons', []));
+		setA.push(...config.get<string[]>('flagIcons', []));
+		setA.push(...config.get<string[]>('circleIcons', []));
+		if (editor) {
+			RemoveSymbols(editor, setA);
+		}
+	});
+	const toEnd = vscode.commands.registerCommand('caser.toEnd', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			// Move the selected text to the end of the document
+			const document = editor.document;
+			const selections = editor.selections;
+			editor.edit(builder => {
 				for (const selection of selections) {
-					const startLine = selection.start.line;
-					const endLine = selection.end.line;
-					for (let line = startLine; line <= endLine; line++) {
-						const lineRange = document.lineAt(line).range;
-						if (lineRange.isEmpty) {
-							continue; // skip empty lines
-						}
-						newSelections.push(new vscode.Selection(lineRange.start, lineRange.end));
-					}
+					const text = document.getText(selection);
+					// add text to end of document
+					const end = document.lineAt(document.lineCount - 1).range.end;
+					const newText = '\n' + text;
+					builder.insert(end, newText);
+					// remove the selected text
+					builder.delete(selection);
 				}
-				// if line starts with one of the setA characters, replace it with the subsequent character
-				editor.edit(builder => {
-					//const selections = editor.selections;
-					for (const selection of newSelections) {
-						const line = document.getText(selection);
-						const characters = Array.from(line);
-						const firstChar = characters[0];
-						const firstCharLength = firstChar.length;
-						if (firstCharLength === 0) {
-							continue; // skip empty lines
-						}
-						const index = setA.indexOf(firstChar);
-						if (index >= 0) {
-							const newText = setA[(index + 1) % setA.length] + line.slice(firstCharLength);
-							builder.replace(selection, newText);
-						}
-						else {
-							const newText = setA[0] + line;
-							builder.replace(selection, newText);
-						}
-					}
-				});
-				editor.selections = newSelections;
-			}
-		});
+			});
+
+		}
+	});
+	const toPrefixList = vscode.commands.registerCommand('caser.toPrefixList', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selection = editor.selection;
+			var atLine = selection.start.line;
+			editor.edit(builder => {
+				const startLine = selection.start.line;
+				const text = document.getText(selection);
+				const line = document.lineAt(selection.start.line);
+				const lineText = line.text;
+				const leader = lineText.substring(0, lineText.indexOf(lineText.trimStart()));
+				const lines = text.split(',');
+				const newText =
+					leader + ' ' + lines[0].trim() + '\n'
+					+ lines.slice(1).map(line => leader + ',' + line.trim()).join('\n');
+				builder.replace(selection, newText);
+				atLine += lines.length;
+			});
+			const end = document.lineAt(atLine).range.end;
+			editor.selection = new vscode.Selection(selection.start, end);
+			SelectAllAtLeft(editor);
+		}
+	});
+	const toSuffixList = vscode.commands.registerCommand('caser.toSuffixList', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selection = editor.selection;
+			var atLine = selection.start.line;
+			editor.edit(builder => {
+				const text = document.getText(selection);
+				const line = document.lineAt(selection.start.line);
+				const lineText = line.text;
+				const leader = lineText.substring(0, lineText.indexOf(lineText.trimStart()));
+				const lines = text.split(',');
+				const newText =
+					lines.slice(0, -1).map(line => leader + line.trim() + ',').join('\n')
+					+ '\n' + leader + lines[lines.length - 1].trim();
+				builder.replace(selection, newText);
+				atLine += lines.length;
+			});
+			const end = document.lineAt(atLine).range.end;
+			editor.selection = new vscode.Selection(selection.start, end);
+			SelectAllAtLeft(editor);
+		}
+	});
 	const toPad = vscode.commands.registerCommand('caser.toPad', () => {
 		const editor = vscode.window.activeTextEditor;
 		// for each selection
@@ -1069,12 +1134,12 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 	);
 	const toTest = vscode.commands.registerCommand('caser.toTest', () => {
-        const editor = vscode.window.activeTextEditor;
+		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setB = config.get<string[]>('squareIcons', ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️"]);
 		if (editor) {
 			AdjustSelectionsForPrefix(editor);
-			DoSymbols(editor,setB);
+			DoSymbols(editor, setB);
 		}
 	});
 
@@ -1114,13 +1179,18 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toCompact);
 	context.subscriptions.push(toSwap);
 	context.subscriptions.push(markLine);
-	context.subscriptions.push(markStage);
+	context.subscriptions.push(markStep);
 	context.subscriptions.push(markFlag);
 	context.subscriptions.push(markQuery);
 	context.subscriptions.push(markNumber);
 	context.subscriptions.push(toPad);
 	context.subscriptions.push(toTrim);
 	context.subscriptions.push(toTest);
+	context.subscriptions.push(markNone);
+	context.subscriptions.push(markLink);
+	context.subscriptions.push(toEnd);
+	context.subscriptions.push(toPrefixList);
+	context.subscriptions.push(toSuffixList);
 }
 
 // This method is called when your extension is deactivated

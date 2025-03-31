@@ -23,31 +23,14 @@
       "properties": {
         "caser.dotIcons": {
           "type": "array",
-          "default": [
-            "🔴",
-            "🟠",
-            "🟡",
-            "🟢",
-            "🔵",
-            "🟣",
-            "⚪",
-            "⚫"
-          ],
-          "description": "The set of icons used for the dotted line command."
+          "default": ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️" ],
+          "description": "The set of icons used for line marking."
         },
         "caser.squareIcons": {
           "type": "array",
-          "default": [
-            "🟥",
-            "🟧",
-            "🟨",
-            "🟩",
-            "🟦",
-            "🟪",
-            "⬜",
-            "🔳"
-          ],
-          "description": "The set of icons used for the squared line command."
+          "default": ["🟥", "🟨", "🟩", "🟦", "✅", "❎"],
+
+          "description": "The set of icons used for header line marking."
         },
         "caser.numberIcons": {
           "type": "array",
@@ -61,40 +44,59 @@
             "6️⃣",
             "7️⃣",
             "8️⃣",
-            "9️⃣"
+            "9️⃣",
+            "🔟"
           ],
-          "description": "The set of icons used for the numbered line command."
+          "description": "The set of icons used for the numbering."
         },
-        "caser.actionIcons": {
+        "caser.stepIcons": {
           "type": "array",
           "default": [
-            "🤔",
-            "📚",
-            "💬",
+            "💭",
+            "🧭",
+            "👋",
             "💡",
             "🚧",
-            "🛠️",
-            "⚗️",
-            "⚠️",
-            "🎗️"
+            "🎁"
           ],
-          "description": "The set of icons used for the numbered line command."
-        },
-        "caser.stateIcons": {
+          "description": "The set of icons used for step marking."
+        }, 
+        "caser.queryIcons": {
           "type": "array",
           "default": [
             "❓",
             "⁉️",
-            "‼️",
             "❗",
-            "✖️",
-            "✔️",
-            "❎",
-            "✅",
-            "🎟️",
-            "⌛"
+            "‼️",
+            "🆎",
+            "🅰️",
+            "🅱️"
           ],
-          "description": "The set of icons used for the numbered line command."
+          "description": "The set of icons used for the query marking."
+        }, 
+        "caser.tagIcons": {
+          "type": "array",
+          "default": [
+            "➕",
+            "⚠️",
+            "⌛",
+            "⚗️",
+            "📚",
+            "🎗️",
+            "🎟️",
+            "🔀"
+          ],
+          "description": "The set of icons used for the tagging."
+        }, 
+        "caser.flagIcons": {
+          "type": "array",
+          "default": ["⚠️","🪲", "🩹","⏳", "🎗️", "🕊️"],
+          "description": "The set of icons used for the flagging."
+        },
+        "caser.linkIcons": {
+          "type": "array",
+          "default": ["[🔗]()", "[🔖](#)","[🎟️]()", "[🔀]()", "[ℹ️]()","[⏪]()" ,"[⏩]()"],
+          "description": "The set of icons used for the link marking."
         }
       }
     },
@@ -228,8 +230,8 @@
         "title": "mark-Line"
       },
       {
-        "command": "caser.markStage",
-        "title": "mark-Stage"
+        "command": "caser.markStep",
+        "title": "mark-Step"
       }, 
       {
          "command": "caser.markFlag",
@@ -258,6 +260,26 @@
       {
         "command": "caser.toTest",
         "title": "to-Test"
+      },
+      {
+        "command": "caser.markNone",
+        "title": "mark-none"
+      },
+      {
+        "command": "caser.markLink",
+        "title": "mark-Link"
+      },
+      { 
+        "command": "caser.toEnd",
+        "title": "to-End"
+      },
+      {
+        "command": "caser.toPrefixList",
+        "title": "to-PrefixList"
+      },
+      {
+        "command": "caser.toSuffixList",
+        "title": "to-SuffixList"
       }
     ]
   },

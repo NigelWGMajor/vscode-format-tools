@@ -34,69 +34,38 @@
         },
         "caser.numberIcons": {
           "type": "array",
-          "default": [
-            "0️⃣",
-            "1️⃣",
-            "2️⃣",
-            "3️⃣",
-            "4️⃣",
-            "5️⃣",
-            "6️⃣",
-            "7️⃣",
-            "8️⃣",
-            "9️⃣",
-            "🔟"
-          ],
-          "description": "The set of icons used for the numbering."
+          "default": [ "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟" ],
+          "description": "The set of icons used for numbering."
         },
         "caser.stepIcons": {
           "type": "array",
-          "default": [
-            "💭",
-            "🧭",
-            "👋",
-            "💡",
-            "🚧",
-            "🎁"
-          ],
+          "default": [ "💭", "🧭", "👋", "💡", "🚧", "🎁" ],
           "description": "The set of icons used for step marking."
         }, 
         "caser.queryIcons": {
           "type": "array",
-          "default": [
-            "❓",
-            "⁉️",
-            "❗",
-            "‼️",
-            "🆎",
-            "🅰️",
-            "🅱️"
-          ],
-          "description": "The set of icons used for the query marking."
+          "default": [ "❓", "⁉️", "❌", "❗", "‼️", "🛑"],
+          "description": "The set of icons used for query marking."
         }, 
-        "caser.tagIcons": {
+        "caser.refIcons": {
           "type": "array",
-          "default": [
-            "➕",
-            "⚠️",
-            "⌛",
-            "⚗️",
-            "📚",
-            "🎗️",
-            "🎟️",
-            "🔀"
-          ],
-          "description": "The set of icons used for the tagging."
+          "default": ["🎟️","🔀","⚗️","📚","📆","🔒"],
+          "description": "The set of icons used for tagging references."
         }, 
-        "caser.flagIcons": {
+        "caser.warnIcons": {
           "type": "array",
-          "default": ["⚠️","🪲", "🩹","⏳", "🎗️", "🕊️"],
-          "description": "The set of icons used for the flagging."
+          "default": ["💥","⚠️","🪲","🩹","⏳","📌"],
+          "description": "The set of icons used for tagging warning."
         },
         "caser.linkIcons": {
           "type": "array",
           "default": ["[🔗]()", "[🔖](#)","[🎟️]()", "[🔀]()", "[ℹ️]()","[⏪]()" ,"[⏩]()"],
-          "description": "The set of icons used for the link marking."
+          "description": "The set of icons used for marking links."
+        },
+        "caser.userIcons": {
+          "type": "array",
+          "default": ["👬","😁","😞","🤷‍♂️","🕊️","🎗️"],
+          "description": "The set of icons used for user marking."
         }
       }
     },
@@ -234,8 +203,8 @@
         "title": "mark-Step"
       }, 
       {
-         "command": "caser.markFlag",
-         "title": "mark-Flag"
+         "command": "caser.markWarn",
+         "title": "mark-Warn"
       },
       {
         "command": "caser.markNumber", 
@@ -280,6 +249,22 @@
       {
         "command": "caser.toSuffixList",
         "title": "to-SuffixList"
+      },
+      {
+        "command": "caser.toNoCurly",
+        "title": "to-NoCurly"
+      },
+      {
+        "command": "caser.toNoParens",
+        "title": "to-NoParens"
+      },
+      {
+        "command": "caser.toNoSquare",
+        "title": "to-NoSquare"
+      },
+      {
+        "command": "caser.toNoAngle",
+        "title": "to-NoAngle"
       }
     ]
   },

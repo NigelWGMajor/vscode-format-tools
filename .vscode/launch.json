@@ -12,6 +12,13 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
+			"skipFiles": [
+				"<node_internals>/**", // Skip Node.js internals
+				"c:/Program Files/Microsoft VS Code/resources/app/**", // Skip VS Code framework code
+			      
+				"C:/Users/NickMajor/.vscode/extensions/**",
+				"C:/Program Files/Microsoft VS Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js"
+			],
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
@@ -19,3 +26,4 @@
 		}
 	]
 }
+C:\Program Files\Microsoft VS Code\resources\app\out\vs\workbench\api\node\extensionHostProcess.js

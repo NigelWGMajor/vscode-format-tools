@@ -311,24 +311,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		return selection;
 	}
-	function selectSymbol(
-		editor: vscode.TextEditor,
-		selection: vscode.Selection,
-		insertedText: string
-	): vscode.Selection {
-		
-		const line = editor.document.lineAt(selection.start.line);
-		if (line) {
-            const ix = line.text.indexOf(insertedText);
-			if (ix < 0) {
-				return selection;
-			}
-			const startPos = line.range.start.translate(0, ix);
-			const endPos = line.range.start.translate(0, ix + insertedText.length);
-			return new vscode.Selection(startPos, endPos);
-		}
-		return selection;
-	}
+
 	function SelectAllAtLeft(
 		editor: vscode.TextEditor
 	) {
@@ -350,25 +333,25 @@ export function activate(context: vscode.ExtensionContext) {
 		fromSet: string[],
 		replaceSet: string[]
 	) {
-		const document = editor.document;
+				const document = editor.document;
 		const selections = editor.selections;
 		const newSelections: vscode.Selection[] = [];
 		await editor.edit(builder => {
 			for (const selection of selections) {
+		        const sel1 = AdjustSelectionForPrefix(editor, selection); 
 				// Get the text of the selection
-				const text = document.getText(selection);
-				let position = selection.start.character;
+				const sel2 = selectSymbol(editor, sel1, fromSet);
+				const text = document.getText(sel2);
 				let newText = text;
-				let didReplace = false;
+				var didReplace = false;
 				var insertedText = '';
-				for (const symbol of fromSet) {
+				for (var ix = 0; ix < fromSet.length; ix++) {
 					// If the text starts with the symbol, replace it
 					// find the symbol in the selected text
-					let ix = (newText.indexOf(symbol));
-					if (ix > -1) {
-						ix = ix++ % fromSet.length;
-						insertedText = fromSet[ix + 1 % fromSet.length];
-						newText = newText.replace(symbol, insertedText);
+					if (fromSet[ix] === newText) {
+						ix = (ix + 1) % fromSet.length;
+						insertedText = fromSet[ix];
+						newText = insertedText;
 						didReplace = true;
 						break; // Exit the loop once a match is found
 					}
@@ -391,12 +374,44 @@ export function activate(context: vscode.ExtensionContext) {
 				builder.replace(selection, newText);
 
 				// push a new selection starting at the original position and including the new text
-				newSelections.push(selectSymbol(editor, selection, insertedText));
+				
 			}
-			editor.selections = newSelections;
 		});
+		for (const selection of selections) {
+			newSelections.push(selectSymbol(editor, selection, fromSet));
+		}
+		editor.selections = newSelections;
 	}
 
+///////////////////////////////////////////////////////////////////////////
+// want to simply select an instance of a symbol set near to the cursor 
+	function selectSymbol(
+		editor: vscode.TextEditor,
+		selection: vscode.Selection,
+		set: string[]):vscode.Selection {
+		const document = editor.document;
+		var xPosition = selection.start.character;
+        if (xPosition > 4) {	
+			xPosition-=4;
+		} else {
+			xPosition = 0;
+		}
+		const line = document.lineAt(selection.start.line);
+		const lineRange = line.range;
+		const lineText = document.getText(lineRange);
+        for (const symbol of set) {
+			// find the symbol in the selected text
+			const ix = lineText.indexOf(symbol, xPosition);
+			if (ix > -1) {
+				// if found, extend the selection to include the markers
+				const start = line.range.start.translate(0, ix);
+				const end = line.range.start.translate(0, ix + symbol.length);
+				return new vscode.Selection(start, end);
+			}
+		}
+		// if not found, return the start of original selection
+		return new vscode.Selection(selection.start, selection.start);
+	}
 	function processAtSelections(
 		editor: vscode.TextEditor,
 		setA: string[],
@@ -1180,10 +1195,11 @@ export function activate(context: vscode.ExtensionContext) {
 	const toTest = vscode.commands.registerCommand('caser.toTest', () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
-		const setB = config.get<string[]>('dotIcons', ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️"]);
+		const setX = config.get<string[]>('numberIcons', ["1", "2", "3", "4", "5", "6"]);
 		if (editor) {
+			 editor.selections = [selectSymbol(editor, editor.selection, setX)];
 			//AdjustSelectionsForPrefix(editor);
-			doSymbolsInPlace(editor, setB, []);
+			//doSymbolsInPlace(editor, setX, []);
 		}
 	});
 	const toNoSquare = vscode.commands.registerCommand('caser.toNoSquare', () => {

@@ -246,11 +246,8 @@ export function activate(context: vscode.ExtensionContext) {
 			const lineText = document.getText(lineRange);
 			// use regex to skip over any combination of tabs or spaces, followed by one of
 			// '* ', '- ', or a number followed by a decimal point and a space, or a sequence of hashes
-			// it seems that if the line starts with a unicode symol it is stepped over too.
-
-
 			const regex = // /^[ \t]*(\* |\+ |- |[#]+ |> |\d+\.\s).*/;
-				/(?:^[ \t]*|\d+\.{1}|\S)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
+				/(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
 			const match = lineText.match(regex);
 			if (match) {
 				// if we have a match, adjust the start of the selection to skip over it
@@ -1200,9 +1197,24 @@ export function activate(context: vscode.ExtensionContext) {
 	const toEnd = vscode.commands.registerCommand('caser.toEnd', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
+			
 			// Move the selected text to the end of the document
 			const document = editor.document;
 			const selections = editor.selections;
+			// if the selection starrts with a heading make a link to the heading first
+			var replacement = '';
+			const heading = document.lineAt(selections[0].start.line).text;
+			const config = vscode.workspace.getConfiguration('caser');
+            const charSet = config.get<string[]>('squareIcons', ['🟥', '🟨', '🟩', '🟦', '✅', '❎']);
+			const charSetRegex = new RegExp(`[${charSet.join('')}]`, 'g');
+
+			if (heading.startsWith('#')) {
+			   replacement = '[🔖](' + heading
+			   .replace(/#+/g, '#',)
+			   .replace(charSetRegex, '')
+			   .replace(/[ \t]+/g, '-') 
+			   + ')';
+			}
 			editor.edit(builder => {
 				for (const selection of selections) {
 					const text = document.getText(selection);
@@ -1211,10 +1223,10 @@ export function activate(context: vscode.ExtensionContext) {
 					const newText = '\n' + text;
 					builder.insert(end, newText);
 					// remove the selected text
-					builder.delete(selection);
+					builder.replace(selection, replacement);
+					replacement = '';
 				}
 			});
-
 		}
 	});
 	const toPrefixList = vscode.commands.registerCommand('caser.toPrefixList', () => {
@@ -1452,3 +1464,4 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 // export function deactivate() {}
+

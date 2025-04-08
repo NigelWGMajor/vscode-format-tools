@@ -86,23 +86,20 @@ The symbol sets can be edited in the settings.json file. When a symbol is placed
 - Numbers can be inserted anywhere, usiually for traige or organization
 - Link symbols insert templates for file, heading or url links
 
-`ac Q` 🟡 markQuery    ❓⁉️❌❗‼️🛑                 | 
-`ac M` 🟡 markline     🟥🟨🟩🟦✅❎ <-- if a header | These are bound to
-`ac M` 🟡 Markline     🔴🟡🟢🔵✔️✖️ <-- otherwise   | the start of a line 
-`ac S` 🟡 markStep     💭🔎👋💡🚧🎁                 | (state markers)
+`ac Q` markQuery    ❓⁉️❌❗‼️🛑                 | 
+`ac M` markline     🟥🟨🟩🟦✅❎ <-- if a header | These are bound to
+`ac M` Markline     🔴🟡🟢🔵✔️✖️ <-- otherwise   | the start of a line 
+`ac S` markStep     💭🔎👋💡🚧🎁                 | (state markers)
  
-`ac R` 🟡 markRef      🎟️🔀⚗️📚📆🔒                 | 
-`ac W` 🟡 markWarn     💥⚠️🪲🩹⏳📌                 | These can be placed anywhere    
-`ac U` 🟡 markUser     👬😁😞🤷‍♂️🕊️🎗️                 | (landmarks)
-`ac N` 🟡 markNumber:  0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟       
+`ac R` markRef      🎟️🔀⚗️📚📆🔒                 | 
+`ac W` markWarn     💥⚠️🪲🩹⏳📌                 | These can be placed anywhere    
+`ac U` markUser     👬😁😞🤷‍♂️🕊️🎗️                 | (landmarks)
+`ac N` markNumber:  0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟       
  
-`ac L` 🟡 markLink     [🔗]() [🔖](#)  [🎟️]()  [🔀]()  [ℹ️]()  [⏪]()  [⏩]()
+`ac L` markLink     [🔗]() [🔖](#)  [🎟️]()  [🔀]()  [ℹ️]()  [⏪]()  [⏩]()
  
-`ac P` 🟡 to-Push      pushes content
-- 🟢 push to the end of the document
-- 🔴 if a header, place a link to the header and moves to the end
-- 🔴 could be combined with to-file 
+`ac P` to-End      pushes content to end. If starts with a header, that is moved and a loink inserted.
   
-`ac F` 🟢 to-File      Top line must have file link [a](./filename.md) (this remains)
+`ac F` to-File      Top line must have file link [a](./filename.md) (this remains)
 - the rest moves to that file, link remains. 
 - Repeat to append to file. File is opened and updated.

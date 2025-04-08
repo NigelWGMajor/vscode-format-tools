@@ -69,6 +69,12 @@ export function activate(context: vscode.ExtensionContext) {
 	function unEscape(str: string) {
 		return str.replace(/\\\"/g, '"');
 	}
+	function UnixSlash(str: string) {
+		return str.replace(/\\/g, '/');
+	}
+	function DosSlash(str: string) {
+		return str.replace(/\//g, '\\');
+	}
 	const head = '<>-<';
 	const tail = '>-<>';
 	function clear(str: string) {
@@ -240,6 +246,9 @@ export function activate(context: vscode.ExtensionContext) {
 			const lineText = document.getText(lineRange);
 			// use regex to skip over any combination of tabs or spaces, followed by one of
 			// '* ', '- ', or a number followed by a decimal point and a space, or a sequence of hashes
+			// it seems that if the line starts with a unicode symol it is stepped over too.
+
+
 			const regex = // /^[ \t]*(\* |\+ |- |[#]+ |> |\d+\.\s).*/;
 				/(?:^[ \t]*|\d+\.{1}|\S)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
 			const match = lineText.match(regex);
@@ -248,7 +257,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const offset = match[0].length - match[1].length;
 				const start = lineRange.start.translate(0, offset);
 				const end = lineRange.end;
-				console.log('start', start, 'end', end);
+
 				return new vscode.Selection(start, end);
 			}
 			else {
@@ -261,7 +270,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// set the editor to the new selections
 
 	}
-	function DoSymbols(
+	async function DoSymbols(
 		editor: vscode.TextEditor,
 		fromSet: string[],
 		removeSet: string[],
@@ -269,7 +278,7 @@ export function activate(context: vscode.ExtensionContext) {
 	) {
 		const document = editor.document;
 		//const selections = editor.selections;
-		editor.edit(builder => {
+		await editor.edit(builder => {
 			//for (const selection of selections) {
 			// Get the text of the selection
 			const text = document.getText(selection);
@@ -333,12 +342,12 @@ export function activate(context: vscode.ExtensionContext) {
 		fromSet: string[],
 		replaceSet: string[]
 	) {
-				const document = editor.document;
+		const document = editor.document;
 		const selections = editor.selections;
 		const newSelections: vscode.Selection[] = [];
 		await editor.edit(builder => {
 			for (const selection of selections) {
-		        const sel1 = AdjustSelectionForPrefix(editor, selection); 
+				const sel1 = AdjustSelectionForPrefix(editor, selection);
 				// Get the text of the selection
 				const sel2 = selectSymbol(editor, sel1, fromSet);
 				const text = document.getText(sel2);
@@ -374,7 +383,7 @@ export function activate(context: vscode.ExtensionContext) {
 				builder.replace(selection, newText);
 
 				// push a new selection starting at the original position and including the new text
-				
+
 			}
 		});
 		for (const selection of selections) {
@@ -383,23 +392,23 @@ export function activate(context: vscode.ExtensionContext) {
 		editor.selections = newSelections;
 	}
 
-///////////////////////////////////////////////////////////////////////////
-// want to simply select an instance of a symbol set near to the cursor 
+	///////////////////////////////////////////////////////////////////////////
+	// want to simply select an instance of a symbol set near to the cursor 
 	function selectSymbol(
 		editor: vscode.TextEditor,
 		selection: vscode.Selection,
-		set: string[]):vscode.Selection {
+		set: string[]): vscode.Selection {
 		const document = editor.document;
 		var xPosition = selection.start.character;
-        if (xPosition > 4) {	
-			xPosition-=4;
+		if (xPosition > 4) {
+			xPosition -= 4;
 		} else {
 			xPosition = 0;
 		}
 		const line = document.lineAt(selection.start.line);
 		const lineRange = line.range;
 		const lineText = document.getText(lineRange);
-        for (const symbol of set) {
+		for (const symbol of set) {
 			// find the symbol in the selected text
 			const ix = lineText.indexOf(symbol, xPosition);
 			if (ix > -1) {
@@ -499,6 +508,64 @@ export function activate(context: vscode.ExtensionContext) {
 					builder.replace(adjustedSelection, newText);
 				}
 			});
+		}
+	});
+	const toFile = vscode.commands.registerCommand('caser.toFile', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const selection = editor.selection;
+			// retrieve the first line of text
+			const line = document.lineAt(selection.start.line);
+			const lineRange = line.range;
+			const lineText = document.getText(lineRange).trim();
+			// the first line should have a path in parentheses
+			const start = lineText.indexOf('(');
+			const end = lineText.indexOf(')', start);
+			if (start > -1 && end > start) {
+				const filePath = lineText.substring(start + 1, end);
+				const adjustedSelection = new vscode.Selection(
+					selection.start.translate(1, 0),
+					selection.end
+				);
+				const text = document.getText(adjustedSelection);
+				// create a new file using the filepath
+				// get the current workspace folder
+				const workspaceFolders = vscode.workspace.workspaceFolders;
+				if (!workspaceFolders) {
+					vscode.window.showErrorMessage('No workspace folder is open. Please open a folder or workspace.');
+					return;
+				}
+				const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, filePath);
+				try {
+					let existingContent = '';
+	
+					// Check if the file exists
+					try {
+						const fileStat = await vscode.workspace.fs.stat(uri);
+						if (fileStat) {
+							// If the file exists, read its content
+							const fileData = await vscode.workspace.fs.readFile(uri);
+							existingContent = fileData.toString();
+						}
+					} catch {
+						// File does not exist, proceed to create it
+					}
+				
+                    const content = existingContent + text;
+
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
+
+					editor.edit(async builder => {
+						builder.delete(adjustedSelection);
+					});
+					const newDocument = await vscode.workspace.openTextDocument(uri);
+					const editor2 = await vscode.window.showTextDocument(newDocument);
+					newDocument.save();
+				} catch (error) {
+					vscode.window.showErrorMessage('Error creating file: ' + error);
+				}
+			}
 		}
 	});
 	const toUnBackTicked = vscode.commands.registerCommand('caser.toUnBackTicked', () => {
@@ -679,6 +746,38 @@ export function activate(context: vscode.ExtensionContext) {
 					const adjustedSelection = defaultToLineSelected(editor, selection);
 					const text = document.getText(adjustedSelection);
 					const newText = snakeCase(text);
+					builder.replace(adjustedSelection, newText);
+				}
+			});
+		}
+	});
+	const toDos = vscode.commands.registerCommand('caser.toDos', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			//defaultToWordSelected(editor);
+			const document = editor.document;
+			const selections = editor.selections;
+			editor.edit(builder => {
+				for (const selection of selections) {
+					const adjustedSelection = defaultToLineSelected(editor, selection);
+					const text = document.getText(adjustedSelection);
+					const newText = DosSlash(text);
+					builder.replace(adjustedSelection, newText);
+				}
+			});
+		}
+	});
+	const toUnix = vscode.commands.registerCommand('caser.toUnix', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			//defaultToWordSelected(editor);
+			const document = editor.document;
+			const selections = editor.selections;
+			editor.edit(builder => {
+				for (const selection of selections) {
+					const adjustedSelection = defaultToLineSelected(editor, selection);
+					const text = document.getText(adjustedSelection);
+					const newText = UnixSlash(text);
 					builder.replace(adjustedSelection, newText);
 				}
 			});
@@ -986,44 +1085,81 @@ export function activate(context: vscode.ExtensionContext) {
 			const newSelections: vscode.Selection[] = [];
 			const selections = editor.selections;
 			for (const selection of selections) {
-				const adjustedSelection = AdjustSelectionForPrefix(editor, selection);
-				newSelections.push(adjustedSelection);
+				// if the selection starts with one of the set characters, set the position there
+				const line = document.lineAt(selection.start.line);
+				const lineRange = line.range;
+				const lineText = document.getText(lineRange);
+				// get the index of the first matching character
+				const index = setAll.findIndex(char => lineText.startsWith(char));
+				if (index === -1) { // no match, need to adjust for any prefix
+					const adjustedSelection = AdjustSelectionForPrefix(editor, selection);
+					newSelections.push(adjustedSelection);
+				} else {
+					//find the position of setA[index] in the line
+					const ix = lineText.indexOf(setAll[index]);
+					if (ix > -1) {
+						// if found, extend the selection to include the markers
+						const start = line.range.start.translate(0, ix);
+						const end = line.range.end;
+						newSelections.push(new vscode.Selection(start, end));
+					} else {
+						const adjustedSelection = AdjustSelectionForPrefix(editor, selection);
+						newSelections.push(adjustedSelection);
+					}
+				}
 			}
+
 			// if line starts with one of the set characters, replace it with the subsequent character
-			editor.edit(builder => {
+			editor.edit(async builder => {
 				for (const selection of newSelections) {
 					var line = document.getText(selection);
 					const fullLine = document.lineAt(selection.start.line).text;
 					let isHeading = fullLine.startsWith('#');
 					if (isHeading) {
-						DoSymbols(editor, setA, setAll, selection);
+						await DoSymbols(editor, setA, setAll, selection);
 					}
 					else {
-						DoSymbols(editor, setB, setAll, selection);
+						await DoSymbols(editor, setB, setAll, selection);
 					}
 				}
 			});
 			editor.selections = newSelections;
 		}
 	});
-	const markNumber = vscode.commands.registerCommand('caser.markNumber', () => {
+	const markNumber = vscode.commands.registerCommand('caser.markNumber', async () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setN = config.get<string[]>('numberIcons', ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]);
 		if (editor) {
 			//AdjustSelectionsForPrefix(editor);
-			doSymbolsInPlace(editor, setN, setN);
+			await doSymbolsInPlace(editor, setN, setN);
 		}
 	});
-	const markWarn = vscode.commands.registerCommand('caser.markWarn', () => {
+	const markWarn = vscode.commands.registerCommand('caser.markWarn', async () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setA = config.get<string[]>('warnIcons', ["💥", "⚠️", "🪲", "🩹", "⏳", "📌"]);
 		if (editor) {
-			doSymbolsInPlace(editor, setA, []);
+			await doSymbolsInPlace(editor, setA, []);
 		}
 	});
-	const markStep = vscode.commands.registerCommand('caser.markStep', () => {
+	const markUser = vscode.commands.registerCommand('caser.markUser', async () => {
+		const editor = vscode.window.activeTextEditor;
+		const config = vscode.workspace.getConfiguration('caser');
+		const setA = config.get<string[]>('userIcons', ["👬","😁","😞","🤷‍♂️","🕊️","🎗️"]);
+		if (editor) {
+			await doSymbolsInPlace(editor, setA, []);
+		}
+	});
+	const markRef = vscode.commands.registerCommand('caser.markRef', async () => {
+		const editor = vscode.window.activeTextEditor;
+		const config = vscode.workspace.getConfiguration('caser');
+		const setA = config.get<string[]>('refIcons', ["🎟️","🔀","⚗️","📚","📆","🔒"]);
+		if (editor) {
+			await doSymbolsInPlace(editor, setA, []);
+		}
+	});
+	const markStep = vscode.commands.registerCommand('caser.markStep', async () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setA = config.get<string[]>('squareIcons', ["🟥", "🟨", "🟩", "🟦", "✅", "❎"]);
@@ -1033,17 +1169,17 @@ export function activate(context: vscode.ExtensionContext) {
 		const setAll = [...setA, ...setB, ...setC, ...setD];
 		if (editor) {
 			for (const selection of editor.selections) {
-				DoSymbols(editor, setC, setAll, AdjustSelectionForPrefix(editor, selection));
+				await DoSymbols(editor, setC, setAll, AdjustSelectionForPrefix(editor, selection));
 			}
 		}
 	});
-	const markLink = vscode.commands.registerCommand('caser.markLink', () => {
+	const markLink = vscode.commands.registerCommand('caser.markLink', async () => {
 		const editor = vscode.window.activeTextEditor;
 		const config = vscode.workspace.getConfiguration('caser');
 		const setA = config.get<string[]>('linkIcons', ["[🔗]()", "[🔖](#)", "[🎟️]()", "[🔀]()", "[ℹ️]()", "[⏪]()", "[⏩]()"]);
 		if (editor) {
 			//AdjustSelectionsForPrefix(editor);
-			doSymbolsInPlace(editor, setA, []);
+			await doSymbolsInPlace(editor, setA, []);
 		}
 	});
 	const markNone = vscode.commands.registerCommand('caser.markNone', () => {
@@ -1197,7 +1333,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const config = vscode.workspace.getConfiguration('caser');
 		const setX = config.get<string[]>('numberIcons', ["1", "2", "3", "4", "5", "6"]);
 		if (editor) {
-			 editor.selections = [selectSymbol(editor, editor.selection, setX)];
+			editor.selections = [selectSymbol(editor, editor.selection, setX)];
 			//AdjustSelectionsForPrefix(editor);
 			//doSymbolsInPlace(editor, setX, []);
 		}
@@ -1295,11 +1431,13 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(markWarn);
 	context.subscriptions.push(markQuery);
 	context.subscriptions.push(markNumber);
+	context.subscriptions.push(markNone);
+	context.subscriptions.push(markLink);
+	context.subscriptions.push(markUser);
+	context.subscriptions.push(markRef);
 	context.subscriptions.push(toPad);
 	context.subscriptions.push(toTrim);
 	context.subscriptions.push(toTest);
-	context.subscriptions.push(markNone);
-	context.subscriptions.push(markLink);
 	context.subscriptions.push(toEnd);
 	context.subscriptions.push(toPrefixList);
 	context.subscriptions.push(toSuffixList);
@@ -1307,6 +1445,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(toNoParens);
 	context.subscriptions.push(toNoCurly);
 	context.subscriptions.push(toNoAngle);
+	context.subscriptions.push(toFile);
+	context.subscriptions.push(toDos);
+	context.subscriptions.push(toUnix);
 }
 
 // This method is called when your extension is deactivated

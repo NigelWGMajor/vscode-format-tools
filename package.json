@@ -1,8 +1,8 @@
 {
   "name": "caser",
   "displayName": "Caser",
-  "description": "This is the README for extension \"caser\" version 1.0.7.",
-  "version": "1.0.7",
+  "description": "This is the README for extension \"caser\" version 1.0.11.",
+  "version": "1.0.11",
   "engines": {
     "vscode": "^1.92.2"
   },
@@ -23,48 +23,116 @@
       "properties": {
         "caser.dotIcons": {
           "type": "array",
-          "default": ["🔴", "🟡", "🟢", "🔵", "✔️", "✖️" ],
+          "default": [
+            "🔴",
+            "🟡",
+            "🟢",
+            "🔵",
+            "✔️",
+            "✖️"
+          ],
           "description": "The set of icons used for line marking."
         },
         "caser.squareIcons": {
           "type": "array",
-          "default": ["🟥", "🟨", "🟩", "🟦", "✅", "❎"],
-
+          "default": [
+            "🟥",
+            "🟨",
+            "🟩",
+            "🟦",
+            "✅",
+            "❎"
+          ],
           "description": "The set of icons used for header line marking."
         },
         "caser.numberIcons": {
           "type": "array",
-          "default": [ "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟" ],
+          "default": [
+            "0️⃣",
+            "1️⃣",
+            "2️⃣",
+            "3️⃣",
+            "4️⃣",
+            "5️⃣",
+            "6️⃣",
+            "7️⃣",
+            "8️⃣",
+            "9️⃣",
+            "🔟"
+          ],
           "description": "The set of icons used for numbering."
         },
         "caser.stepIcons": {
           "type": "array",
-          "default": [ "💭", "🧭", "👋", "💡", "🚧", "🎁" ],
+          "default": [
+            "💭",
+            "🧭",
+            "👋",
+            "💡",
+            "🚧",
+            "🎁"
+          ],
           "description": "The set of icons used for step marking."
-        }, 
+        },
         "caser.queryIcons": {
           "type": "array",
-          "default": [ "❓", "⁉️", "❌", "❗", "‼️", "🛑"],
+          "default": [
+            "❓",
+            "⁉️",
+            "❌",
+            "❗",
+            "‼️",
+            "🛑"
+          ],
           "description": "The set of icons used for query marking."
-        }, 
+        },
         "caser.refIcons": {
           "type": "array",
-          "default": ["🎟️","🔀","⚗️","📚","📆","🔒"],
+          "default": [
+            "🎟️",
+            "🔀",
+            "⚗️",
+            "📚",
+            "📆",
+            "🔒"
+          ],
           "description": "The set of icons used for tagging references."
-        }, 
+        },
         "caser.warnIcons": {
           "type": "array",
-          "default": ["💥","⚠️","🪲","🩹","⏳","📌"],
+          "default": [
+            "💥",
+            "⚠️",
+            "🪲",
+            "🩹",
+            "⏳",
+            "📌"
+          ],
           "description": "The set of icons used for tagging warning."
         },
         "caser.linkIcons": {
           "type": "array",
-          "default": ["[🔗]()", "[🔖](#)","[🎟️]()", "[🔀]()", "[ℹ️]()","[⏪]()" ,"[⏩]()"],
+          "default": [
+            "[🔗]()",
+            "[🔖](#)",
+            "[🎟️]()",
+            "[🔀]()",
+            "[ℹ️]()",
+            "[⏪]()",
+            "[⏩]()"
+          ],
           "description": "The set of icons used for marking links."
         },
         "caser.userIcons": {
           "type": "array",
-          "default": ["👬","😁","😞","🤷‍♂️","🕊️","🎗️"],
+          "default": [
+            "👬",
+            "😁",
+            "😞",
+            "🤷‍♂️",
+            "🕊️",
+            "🎗️"
+          ],
           "description": "The set of icons used for user marking."
         }
       }
@@ -201,14 +269,22 @@
       {
         "command": "caser.markStep",
         "title": "mark-Step"
-      }, 
-      {
-         "command": "caser.markWarn",
-         "title": "mark-Warn"
       },
       {
-        "command": "caser.markNumber", 
-        "title": "mark-Number"
+        "command": "caser.markWarn",
+        "title": "mark-Warn"
+      },
+      {
+        "command": "caser.markWarn",
+        "title": "mark-Warn"
+      },
+      {
+        "command": "caser.markRef",
+        "title": "mark-Ref"
+      },
+      {
+        "command": "caser.markUser",
+        "title": "mark-User"
       },
       {
         "command": "caser.markLink",
@@ -238,7 +314,7 @@
         "command": "caser.markLink",
         "title": "mark-Link"
       },
-      { 
+      {
         "command": "caser.toEnd",
         "title": "to-End"
       },
@@ -265,6 +341,18 @@
       {
         "command": "caser.toNoAngle",
         "title": "to-NoAngle"
+      },
+      {
+        "command": "caser.toFile",
+        "title": "to-File"
+      },
+      {
+        "command": "caser.toDos",
+        "title": "to-Dos-Slash"
+      },
+      {
+        "command": "caser.toUnix",
+        "title": "to-Unix-Slash"
       }
     ]
   },

@@ -918,6 +918,21 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
     });
+    const toNewLine = vscode.commands.registerCommand('caser.toNewLine', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            defaultToWordSelected(editor);
+            const selections = editor.selections;
+            editor.edit(builder => {
+                for (const selection of selections) {
+                    const text = document.getText(selection);
+                    const newText = '\n' + text;
+                    builder.replace(selection, newText);
+                }
+            });
+        }
+    });
     const toClear = vscode.commands.registerCommand('caser.toClear', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -1264,16 +1279,20 @@ export function activate(context: vscode.ExtensionContext) {
             const charSetRegex = new RegExp(`[${charSet.join('')}]`, 'g');
 
             if (heading.startsWith('#')) {
-                replacement = '[🔖](' + heading
-                    .replace(/#+/g, '#',)
+                replacement = '[🔖](#' + heading
+                    .replace(/#+\s*/g, '',)
                     .replace(charSetRegex, '')
+                    .trim()
                     .replace(/[ \t]+/g, '-')
                     + ')';
             }
+            var ix = 0;
             editor.edit(builder => {
                 for (const selection of selections) {
-                    const text = document.getText(selection);
-                    // add text to end of document
+                    var text = document.getText(selection);
+                    if (ix++ === 0) {
+                       text = text.replace(charSetRegex, '');
+                    }                    // add text to end of document
                     const end = document.lineAt(document.lineCount - 1).range.end;
                     const newText = '\n' + text;
                     builder.insert(end, newText);
@@ -1551,6 +1570,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toUnix);
     context.subscriptions.push(toTogglePipeComma);
     context.subscriptions.push(selectByRegex);
+    context.subscriptions.push(toNewLine);
 }
 
 // This method is called when your extension is deactivated

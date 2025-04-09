@@ -69,6 +69,7 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 `as <` to-leading       (l) pushes a comma-separated list to leading commas multiline
 `as >` to-trailing      (l) pushes a comma-separated list to training commas multiline
 `as R` to-Select-by-Regex  selects based on regex
+`as N` as New Line      (w) place each selection on a new line
 
 ### Dummy text
 

@@ -1,413 +1,447 @@
 {
-  "name": "caser",
-  "displayName": "Caser",
-  "description": "This is the README for extension \"caser\" version 1.0.12.",
-  "version": "1.0.12",
-  "engines": {
-    "vscode": "^1.92.2"
-  },
-  "categories": [
-    "Other"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NigelWGMajor/vscode-format-tools.git"
-  },
-  "publisher": "major-nix-test",
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "Caser Settings",
-      "properties": {
-        "regexPatterns": {
-          "type": "array",
-          "default": [
-            { "label": "\\b\\w+\\b", "description": "Words" },
-            { "label": "\\d+", "description": "Numbers" },
-            { "label": "[A-Z][a-z]+", "description": "Title-case words" },
-            { "label": "\\s+", "description": "Whitespace" },
-            { "label": "https?:\\/\\/[^\\s]+", "description": "Url" },
-            { "label": "\\w+@\\w+\\.\\w+", "description": "email addresses" },
-            { "label": "#[0-9a-fA-F]{6}+", "description": "6-char hex colors" },
-            { "label": "<\/?[a-zA-Z][^>]*>", "description": "HTML tags" },
-            { "label": "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", "description": "IP4 address" },
-            { "label": "(?<=\n)[ \t]*(?=\n)", "description": "Empty lines" }
-        ],
-          "description": "Regex patterns to match text."
-        },
-        "caser.dotIcons": {
-          "type": "array",
-          "default": [
-            "🔴",
-            "🟡",
-            "🟢",
-            "🔵",
-            "✔️",
-            "✖️"
-          ],
-          "description": "The set of icons used for line marking."
-        },
-        "caser.squareIcons": {
-          "type": "array",
-          "default": [
-            "🟥",
-            "🟨",
-            "🟩",
-            "🟦",
-            "✅",
-            "❎"
-          ],
-          "description": "The set of icons used for header line marking."
-        },
-        "caser.numberIcons": {
-          "type": "array",
-          "default": [
-            "0️⃣",
-            "1️⃣",
-            "2️⃣",
-            "3️⃣",
-            "4️⃣",
-            "5️⃣",
-            "6️⃣",
-            "7️⃣",
-            "8️⃣",
-            "9️⃣",
-            "🔟"
-          ],
-          "description": "The set of icons used for numbering."
-        },
-        "caser.stepIcons": {
-          "type": "array",
-          "default": [
-            "💭",
-            "🧭",
-            "👋",
-            "💡",
-            "🚧",
-            "🎁"
-          ],
-          "description": "The set of icons used for step marking."
-        },
-        "caser.queryIcons": {
-          "type": "array",
-          "default": [
-            "❓",
-            "⁉️",
-            "❌",
-            "❗",
-            "‼️",
-            "🛑"
-          ],
-          "description": "The set of icons used for query marking."
-        },
-        "caser.refIcons": {
-          "type": "array",
-          "default": [
-            "🎟️",
-            "🔀",
-            "⚗️",
-            "📚",
-            "📆",
-            "🔒"
-          ],
-          "description": "The set of icons used for tagging references."
-        },
-        "caser.warnIcons": {
-          "type": "array",
-          "default": [
-            "💥",
-            "⚠️",
-            "🪲",
-            "🩹",
-            "⏳",
-            "📌"
-          ],
-          "description": "The set of icons used for tagging warning."
-        },
-        "caser.linkIcons": {
-          "type": "array",
-          "default": [
-            "[🔗]()",
-            "[🔖](#)",
-            "[🎟️]()",
-            "[🔀]()",
-            "[ℹ️]()",
-            "[⏪]()",
-            "[⏩]()"
-          ],
-          "description": "The set of icons used for marking links."
-        },
-        "caser.userIcons": {
-          "type": "array",
-          "default": [
-            "👬",
-            "😁",
-            "😞",
-            "🤷‍♂️",
-            "🕊️",
-            "🎗️"
-          ],
-          "description": "The set of icons used for user marking."
-        }
-      }
+    "name": "caser",
+    "displayName": "Caser",
+    "description": "This is the README for extension \"caser\" version 1.0.12.",
+    "version": "1.0.12",
+    "engines": {
+        "vscode": "^1.92.2"
     },
-    "commands": [
-      {
-        "command": "caser.toLowerCase",
-        "title": "to-Lower"
-      },
-      {
-        "command": "caser.toUpperCase",
-        "title": "to-Upper"
-      },
-      {
-        "command": "caser.toTitleCase",
-        "title": "to-Title"
-      },
-      {
-        "command": "caser.toCamelCase",
-        "title": "to-Camel"
-      },
-      {
-        "command": "caser.toPascalCase",
-        "title": "to-Pascal"
-      },
-      {
-        "command": "caser.toSnakeCase",
-        "title": "to-Snake"
-      },
-      {
-        "command": "caser.toSpaceCase",
-        "title": "to-Space"
-      },
-      {
-        "command": "caser.toKebabCase",
-        "title": "to-Kebab"
-      },
-      {
-        "command": "caser.toEscaped",
-        "title": "to-Escaped"
-      },
-      {
-        "command": "caser.toUnEscaped",
-        "title": "to-UnEscaped"
-      },
-      {
-        "command": "caser.toUnQuoted",
-        "title": "to-UnQuoted"
-      },
-      {
-        "command": "caser.toQuoted",
-        "title": "to-Quoted"
-      },
-      {
-        "command": "caser.toBackTicked",
-        "title": "to-BackTicked"
-      },
-      {
-        "command": "caser.toUnBackTicked",
-        "title": "to-UnBackTicked"
-      },
-      {
-        "command": "caser.toUnSQuoted",
-        "title": "to-UnSQuoted"
-      },
-      {
-        "command": "caser.toSQuoted",
-        "title": "to-SQuoted"
-      },
-      {
-        "command": "caser.loremIpsum",
-        "title": "LoremIpsum"
-      },
-      {
-        "command": "caser.toSquare",
-        "title": "to-Square"
-      },
-      {
-        "command": "caser.toParens",
-        "title": "to-Parens"
-      },
-      {
-        "command": "caser.toCurly",
-        "title": "to-Curly"
-      },
-      {
-        "command": "caser.toAngle",
-        "title": "to-Angle"
-      },
-      {
-        "command": "caser.toNone",
-        "title": "to-None"
-      },
-      {
-        "command": "caser.toTilded",
-        "title": "to-Tilded"
-      },
-      {
-        "command": "caser.toStarred",
-        "title": "to-Starred"
-      },
-      {
-        "command": "caser.toUnderScored",
-        "title": "to-UnderScored"
-      },
-      {
-        "command": "caser.toClear",
-        "title": "to-Clear"
-      },
-      {
-        "command": "caser.toSecure",
-        "title": "to-Secure"
-      },
-      {
-        "command": "caser.toFlip",
-        "title": "to-Flip"
-      },
-      {
-        "command": "caser.toFlip",
-        "title": "to-Flip"
-      },
-      {
-        "command": "caser.toCompact",
-        "title": "to-Compact"
-      },
-      {
-        "command": "caser.toSwap",
-        "title": "to-Swap"
-      },
-      {
-        "command": "caser.markLine",
-        "title": "mark-Line"
-      },
-      {
-        "command": "caser.markStep",
-        "title": "mark-Step"
-      },
-      {
-        "command": "caser.markWarn",
-        "title": "mark-Warn"
-      },
-      {
-        "command": "caser.markWarn",
-        "title": "mark-Warn"
-      },
-      {
-        "command": "caser.markRef",
-        "title": "mark-Ref"
-      },
-      {
-        "command": "caser.markUser",
-        "title": "mark-User"
-      },
-      {
-        "command": "caser.markLink",
-        "title": "mark-Link"
-      },
-      {
-        "command": "caser.markQuery",
-        "title": "mark-Query"
-      },
-      {
-        "command": "caser.toPad",
-        "title": "to-Pad"
-      },
-      {
-        "command": "caser.toTrim",
-        "title": "to-Trim"
-      },
-      {
-        "command": "caser.toTest",
-        "title": "to-Test"
-      },
-      {
-        "command": "caser.markNone",
-        "title": "mark-none"
-      },
-      {
-        "command": "caser.markLink",
-        "title": "mark-Link"
-      },
-      {
-        "command": "caser.toEnd",
-        "title": "to-End"
-      },
-      {
-        "command": "caser.toPrefixList",
-        "title": "to-PrefixList"
-      },
-      {
-        "command": "caser.toSuffixList",
-        "title": "to-SuffixList"
-      },
-      {
-        "command": "caser.toNoCurly",
-        "title": "to-NoCurly"
-      },
-      {
-        "command": "caser.toNoParens",
-        "title": "to-NoParens"
-      },
-      {
-        "command": "caser.toNoSquare",
-        "title": "to-NoSquare"
-      },
-      {
-        "command": "caser.toNoAngle",
-        "title": "to-NoAngle"
-      },
-      {
-        "command": "caser.toFile",
-        "title": "to-File"
-      },
-      {
-        "command": "caser.toDos",
-        "title": "to-Dos-Slash"
-      },
-      {
-        "command": "caser.toUnix",
-        "title": "to-Unix-Slash"
-      },
-      {
-        "command": "caser.toTogglePipeComma",
-        "title": "to-Pipe-or-Comma"        
-      },
-      {
-        "command": "caser.selectByRegex",
-        "title": "to-Select-by-Regex"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.11.0",
-    "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.4.0",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5"
-  },
-  "bugs": {
-    "url": "https://github.com/NigelWGMajor/vscode-format-tools/issues"
-  },
-  "homepage": "https://github.com/NigelWGMajor/vscode-format-tools#readme",
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/vscode": "^1.92.0",
-    "crypto-js": "^4.2.0",
-    "vsce": "^2.15.0"
-  }
+    "categories": [
+        "Other"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/NigelWGMajor/vscode-format-tools.git"
+    },
+    "publisher": "major-nix-test",
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Caser Settings",
+            "properties": {
+                "regexPatterns": {
+                    "type": "array",
+                    "default": [
+                        {
+                            "label": "\\b\\w+\\b",
+                            "description": "Words"
+                        },
+                        {
+                            "label": "\\d+",
+                            "description": "Numbers"
+                        },
+                        {
+                            "label": "[A-Z][a-z]+",
+                            "description": "Title-case words"
+                        },
+                        {
+                            "label": "\\s+",
+                            "description": "Whitespace"
+                        },
+                        {
+                            "label": "https?:\\/\\/[^\\s]+",
+                            "description": "Url"
+                        },
+                        {
+                            "label": "\\w+@\\w+\\.\\w+",
+                            "description": "email addresses"
+                        },
+                        {
+                            "label": "#[0-9a-fA-F]{6}+",
+                            "description": "6-char hex colors"
+                        },
+                        {
+                            "label": "<\/?[a-zA-Z][^>]*>",
+                            "description": "HTML tags"
+                        },
+                        {
+                            "label": "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+                            "description": "IP4 address"
+                        },
+                        {
+                            "label": "(?<=\n)[ \t]*(?=\n)",
+                            "description": "Empty lines"
+                        }
+                    ],
+                    "description": "Regex patterns to match text."
+                },
+                "caser.dotIcons": {
+                    "type": "array",
+                    "default": [
+                        "🔴",
+                        "🟡",
+                        "🟢",
+                        "🔵",
+                        "✔️",
+                        "✖️"
+                    ],
+                    "description": "The set of icons used for line marking."
+                },
+                "caser.squareIcons": {
+                    "type": "array",
+                    "default": [
+                        "🟥",
+                        "🟨",
+                        "🟩",
+                        "🟦",
+                        "✅",
+                        "❎"
+                    ],
+                    "description": "The set of icons used for header line marking."
+                },
+                "caser.numberIcons": {
+                    "type": "array",
+                    "default": [
+                        "0️⃣",
+                        "1️⃣",
+                        "2️⃣",
+                        "3️⃣",
+                        "4️⃣",
+                        "5️⃣",
+                        "6️⃣",
+                        "7️⃣",
+                        "8️⃣",
+                        "9️⃣",
+                        "🔟"
+                    ],
+                    "description": "The set of icons used for numbering."
+                },
+                "caser.stepIcons": {
+                    "type": "array",
+                    "default": [
+                        "💭",
+                        "🧭",
+                        "👋",
+                        "💡",
+                        "🚧",
+                        "🎁"
+                    ],
+                    "description": "The set of icons used for step marking."
+                },
+                "caser.queryIcons": {
+                    "type": "array",
+                    "default": [
+                        "❓",
+                        "⁉️",
+                        "❌",
+                        "❗",
+                        "‼️",
+                        "🛑"
+                    ],
+                    "description": "The set of icons used for query marking."
+                },
+                "caser.refIcons": {
+                    "type": "array",
+                    "default": [
+                        "🎟️",
+                        "🔀",
+                        "⚗️",
+                        "📚",
+                        "📆",
+                        "🔒"
+                    ],
+                    "description": "The set of icons used for tagging references."
+                },
+                "caser.warnIcons": {
+                    "type": "array",
+                    "default": [
+                        "💥",
+                        "⚠️",
+                        "🪲",
+                        "🩹",
+                        "⏳",
+                        "📌"
+                    ],
+                    "description": "The set of icons used for tagging warning."
+                },
+                "caser.linkIcons": {
+                    "type": "array",
+                    "default": [
+                        "[🔗]()",
+                        "[🔖](#)",
+                        "[🎟️]()",
+                        "[🔀]()",
+                        "[ℹ️]()",
+                        "[⏪]()",
+                        "[⏩]()"
+                    ],
+                    "description": "The set of icons used for marking links."
+                },
+                "caser.userIcons": {
+                    "type": "array",
+                    "default": [
+                        "👬",
+                        "😁",
+                        "😞",
+                        "🤷‍♂️",
+                        "🕊️",
+                        "🎗️"
+                    ],
+                    "description": "The set of icons used for user marking."
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "caser.toLowerCase",
+                "title": "to-Lower"
+            },
+            {
+                "command": "caser.toUpperCase",
+                "title": "to-Upper"
+            },
+            {
+                "command": "caser.toTitleCase",
+                "title": "to-Title"
+            },
+            {
+                "command": "caser.toCamelCase",
+                "title": "to-Camel"
+            },
+            {
+                "command": "caser.toPascalCase",
+                "title": "to-Pascal"
+            },
+            {
+                "command": "caser.toSnakeCase",
+                "title": "to-Snake"
+            },
+            {
+                "command": "caser.toSpaceCase",
+                "title": "to-Space"
+            },
+            {
+                "command": "caser.toKebabCase",
+                "title": "to-Kebab"
+            },
+            {
+                "command": "caser.toEscaped",
+                "title": "to-Escaped"
+            },
+            {
+                "command": "caser.toUnEscaped",
+                "title": "to-UnEscaped"
+            },
+            {
+                "command": "caser.toUnQuoted",
+                "title": "to-UnQuoted"
+            },
+            {
+                "command": "caser.toQuoted",
+                "title": "to-Quoted"
+            },
+            {
+                "command": "caser.toBackTicked",
+                "title": "to-BackTicked"
+            },
+            {
+                "command": "caser.toUnBackTicked",
+                "title": "to-UnBackTicked"
+            },
+            {
+                "command": "caser.toUnSQuoted",
+                "title": "to-UnSQuoted"
+            },
+            {
+                "command": "caser.toSQuoted",
+                "title": "to-SQuoted"
+            },
+            {
+                "command": "caser.loremIpsum",
+                "title": "LoremIpsum"
+            },
+            {
+                "command": "caser.toSquare",
+                "title": "to-Square"
+            },
+            {
+                "command": "caser.toParens",
+                "title": "to-Parens"
+            },
+            {
+                "command": "caser.toCurly",
+                "title": "to-Curly"
+            },
+            {
+                "command": "caser.toAngle",
+                "title": "to-Angle"
+            },
+            {
+                "command": "caser.toNone",
+                "title": "to-None"
+            },
+            {
+                "command": "caser.toTilded",
+                "title": "to-Tilded"
+            },
+            {
+                "command": "caser.toStarred",
+                "title": "to-Starred"
+            },
+            {
+                "command": "caser.toUnderScored",
+                "title": "to-UnderScored"
+            },
+            {
+                "command": "caser.toClear",
+                "title": "to-Clear"
+            },
+            {
+                "command": "caser.toSecure",
+                "title": "to-Secure"
+            },
+            {
+                "command": "caser.toFlip",
+                "title": "to-Flip"
+            },
+            {
+                "command": "caser.toFlip",
+                "title": "to-Flip"
+            },
+            {
+                "command": "caser.toCompact",
+                "title": "to-Compact"
+            },
+            {
+                "command": "caser.toSwap",
+                "title": "to-Swap"
+            },
+            {
+                "command": "caser.markLine",
+                "title": "mark-Line"
+            },
+            {
+                "command": "caser.markStep",
+                "title": "mark-Step"
+            },
+            {
+                "command": "caser.markWarn",
+                "title": "mark-Warn"
+            },
+            {
+                "command": "caser.markWarn",
+                "title": "mark-Warn"
+            },
+            {
+                "command": "caser.markRef",
+                "title": "mark-Ref"
+            },
+            {
+                "command": "caser.markUser",
+                "title": "mark-User"
+            },
+            {
+                "command": "caser.markLink",
+                "title": "mark-Link"
+            },
+            {
+                "command": "caser.markQuery",
+                "title": "mark-Query"
+            },
+            {
+                "command": "caser.toPad",
+                "title": "to-Pad"
+            },
+            {
+                "command": "caser.toTrim",
+                "title": "to-Trim"
+            },
+            {
+                "command": "caser.toTest",
+                "title": "to-Test"
+            },
+            {
+                "command": "caser.markNone",
+                "title": "mark-none"
+            },
+            {
+                "command": "caser.markLink",
+                "title": "mark-Link"
+            },
+            {
+                "command": "caser.toEnd",
+                "title": "to-End"
+            },
+            {
+                "command": "caser.toPrefixList",
+                "title": "to-PrefixList"
+            },
+            {
+                "command": "caser.toSuffixList",
+                "title": "to-SuffixList"
+            },
+            {
+                "command": "caser.toNoCurly",
+                "title": "to-NoCurly"
+            },
+            {
+                "command": "caser.toNoParens",
+                "title": "to-NoParens"
+            },
+            {
+                "command": "caser.toNoSquare",
+                "title": "to-NoSquare"
+            },
+            {
+                "command": "caser.toNoAngle",
+                "title": "to-NoAngle"
+            },
+            {
+                "command": "caser.toFile",
+                "title": "to-File"
+            },
+            {
+                "command": "caser.toDos",
+                "title": "to-Dos-Slash"
+            },
+            {
+                "command": "caser.toUnix",
+                "title": "to-Unix-Slash"
+            },
+            {
+                "command": "caser.toTogglePipeComma",
+                "title": "to-Pipe-or-Comma"
+            },
+            {
+                "command": "caser.selectByRegex",
+                "title": "to-Select-by-Regex"
+            },
+            {
+                "command": "caser.toNewLine",
+                "title": "to-NewLine"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/crypto-js": "^4.2.2",
+        "@types/mocha": "^10.0.7",
+        "@types/node": "20.x",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.11.0",
+        "@vscode/test-cli": "^0.0.9",
+        "@vscode/test-electron": "^2.4.0",
+        "eslint": "^8.57.0",
+        "typescript": "^5.4.5"
+    },
+    "bugs": {
+        "url": "https://github.com/NigelWGMajor/vscode-format-tools/issues"
+    },
+    "homepage": "https://github.com/NigelWGMajor/vscode-format-tools#readme",
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/vscode": "^1.92.0",
+        "crypto-js": "^4.2.0",
+        "vsce": "^2.15.0"
+    }
 }

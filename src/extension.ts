@@ -246,8 +246,8 @@ export function activate(context: vscode.ExtensionContext) {
 			const lineText = document.getText(lineRange);
 			// use regex to skip over any combination of tabs or spaces, followed by one of
 			// '* ', '- ', or a number followed by a decimal point and a space, or a sequence of hashes
-			const regex = // /^[ \t]*(\* |\+ |- |[#]+ |> |\d+\.\s).*/;
-				/(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
+			// const regex = /(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
+			const regex = /(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+|<!--)* (.*$)/;
 			const match = lineText.match(regex);
 			if (match) {
 				// if we have a match, adjust the start of the selection to skip over it

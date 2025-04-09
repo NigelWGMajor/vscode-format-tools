@@ -58,16 +58,17 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 `cs ~`   to-Tilde       (l) ~ ~
 `as sp`  to-None        (l)
 
-### Formatting    
+### Formatting and selection   
     
 `cs E` to-Escaped       (l) 
 `as E` to-UnEscaped     (l) 
-`as P` to-Pad           (l) Pads with spaces to widest part of selection and selectes each line
+`as P` to-Pad           (l) Pads with spaces to widest part of selection and selects each line
 `as |` to-Pipe-or-Comma     Toggles pipes or commas based on first in first line
 `as T` to-Trim          (l) Trims trailing spaces and selects each line
 `as C` to-Compact       (l) removes most white space including newlines
 `as <` to-leading       (l) pushes a comma-separated list to leading commas multiline
 `as >` to-trailing      (l) pushes a comma-separated list to training commas multiline
+`as R` to-Select-by-Regex  selects based on regex
 
 ### Dummy text
 

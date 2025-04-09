@@ -536,7 +536,7 @@ export function activate(context: vscode.ExtensionContext) {
                 const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, filePath);
                 try {
                     let existingContent = '';
-    
+
                     // Check if the file exists
                     try {
                         const fileStat = await vscode.workspace.fs.stat(uri);
@@ -548,7 +548,7 @@ export function activate(context: vscode.ExtensionContext) {
                     } catch {
                         // File does not exist, proceed to create it
                     }
-                
+
                     const content = existingContent + text;
 
                     await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
@@ -1069,6 +1069,61 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     });
+    const selectByRegex = vscode.commands.registerCommand('caser.selectByRegex', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selections = editor.selections;
+            var newSelections: vscode.Selection[] = [];
+            // read the regexOptins from the caser settings
+            const config = vscode.workspace.getConfiguration('caser');
+
+            const regexOptions = config.get<{ label: string; description: string }[]>('regexOptions') 
+            ||  // Default regex options         
+            [
+                { label: '\\b\\w+\\b', description: 'Match words' },
+                { label: '\\d+', description: 'Match numbers' },
+                { label: '[A-Z][a-z]+', description: 'Match capitalized words' },
+                { label: '\\s+', description: 'Match whitespace' },
+                { label: '\\w+@\\w+\\.\\w+', description: 'Match email addresses' }
+            ];
+
+            const selectedRegex = await vscode.window.showQuickPick(
+                regexOptions.map(option => ({
+                    label: option.label,
+                    description: option.description
+                })),
+                { placeHolder: 'Select a regex or type your own' }
+            );
+            const regex = selectedRegex?.label
+            ? await vscode.window.showInputBox({
+                  prompt: 'Edit the regex or press Enter to use the selected value',
+                  value: selectedRegex.label // Pre-fill with the selected value
+              })
+            : await vscode.window.showInputBox({ prompt: 'Enter a custom regex' });
+
+            if (regex) {
+                const regexObj = new RegExp(regex, 'g');
+
+                for (const selection of selections) {
+                    const text = document.getText(selection);
+                    const matches = text.matchAll(regexObj);
+   
+                    if (matches) {
+                        for (const match of matches) {
+                           const matchStartIndex = match.index ?? 0;
+                           const matchLength = match[0].length;
+                           const start = document.positionAt(document.offsetAt(selection.start) + matchStartIndex);
+                           const end = start.translate(0, matchLength);
+                           
+                           newSelections.push(new vscode.Selection(start, end));
+                        }
+                    }
+                }
+                editor.selections = newSelections;
+            }
+        }
+    });
     const markLine = vscode.commands.registerCommand('caser.markLine', () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
@@ -1143,7 +1198,7 @@ export function activate(context: vscode.ExtensionContext) {
     const markUser = vscode.commands.registerCommand('caser.markUser', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('userIcons', ["👬","😁","😞","🤷‍♂️","🕊️","🎗️"]);
+        const setA = config.get<string[]>('userIcons', ["👬", "😁", "😞", "🤷‍♂️", "🕊️", "🎗️"]);
         if (editor) {
             await doSymbolsInPlace(editor, setA, []);
         }
@@ -1151,7 +1206,7 @@ export function activate(context: vscode.ExtensionContext) {
     const markRef = vscode.commands.registerCommand('caser.markRef', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('refIcons', ["🎟️","🔀","⚗️","📚","📆","🔒"]);
+        const setA = config.get<string[]>('refIcons', ["🎟️", "🔀", "⚗️", "📚", "📆", "🔒"]);
         if (editor) {
             await doSymbolsInPlace(editor, setA, []);
         }
@@ -1197,7 +1252,7 @@ export function activate(context: vscode.ExtensionContext) {
     const toEnd = vscode.commands.registerCommand('caser.toEnd', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-            
+
             // Move the selected text to the end of the document
             const document = editor.document;
             const selections = editor.selections;
@@ -1209,11 +1264,11 @@ export function activate(context: vscode.ExtensionContext) {
             const charSetRegex = new RegExp(`[${charSet.join('')}]`, 'g');
 
             if (heading.startsWith('#')) {
-               replacement = '[🔖](' + heading
-               .replace(/#+/g, '#',)
-               .replace(charSetRegex, '')
-               .replace(/[ \t]+/g, '-') 
-               + ')';
+                replacement = '[🔖](' + heading
+                    .replace(/#+/g, '#',)
+                    .replace(charSetRegex, '')
+                    .replace(/[ \t]+/g, '-')
+                    + ')';
             }
             editor.edit(builder => {
                 for (const selection of selections) {
@@ -1300,7 +1355,7 @@ export function activate(context: vscode.ExtensionContext) {
             } else {
                 source = ',';
                 target = '|';
-            } 
+            }
             editor.edit(builder => {
                 for (const selection of selections) {
                     const text = document.getText(selection);
@@ -1308,8 +1363,8 @@ export function activate(context: vscode.ExtensionContext) {
                     builder.replace(selection, newText);
                 }
             });
-        } 
-    });   
+        }
+    });
     const toPad = vscode.commands.registerCommand('caser.toPad', () => {
         const editor = vscode.window.activeTextEditor;
         // for each selection
@@ -1495,6 +1550,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toDos);
     context.subscriptions.push(toUnix);
     context.subscriptions.push(toTogglePipeComma);
+    context.subscriptions.push(selectByRegex);
 }
 
 // This method is called when your extension is deactivated

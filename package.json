@@ -353,6 +353,10 @@
       {
         "command": "caser.toUnix",
         "title": "to-Unix-Slash"
+      },
+      {
+        "command": "caser.toTogglePipeComma",
+        "title": "to-Pipe-or-Comma"        
       }
     ]
   },

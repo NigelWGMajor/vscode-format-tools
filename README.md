@@ -60,13 +60,14 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 
 ### Formatting    
     
-`cs E` to-Escaped     (l) 
-`as E` to-UnEscaped   (l) 
-`as P` to-Pad         (l) Pads with spaces to widest part of selection and selectes each line
-`as T` to-Trim        (l) Trims trailing spaces and selects each line
-`as C` to-Compact     (l) removes most white space including newlines
-`as <` to-leading     (l) pushes a comma-separated list to leading commas multiline
-`as >` to-trailing    (l) pushes a comma-separated list to training commas multiline
+`cs E` to-Escaped       (l) 
+`as E` to-UnEscaped     (l) 
+`as P` to-Pad           (l) Pads with spaces to widest part of selection and selectes each line
+`as |` to-Pipe-or-Comma     Toggles pipes or commas based on first in first line
+`as T` to-Trim          (l) Trims trailing spaces and selects each line
+`as C` to-Compact       (l) removes most white space including newlines
+`as <` to-leading       (l) pushes a comma-separated list to leading commas multiline
+`as >` to-trailing      (l) pushes a comma-separated list to training commas multiline
 
 ### Dummy text
 

@@ -1093,15 +1093,15 @@ export function activate(context: vscode.ExtensionContext) {
             // read the regexOptins from the caser settings
             const config = vscode.workspace.getConfiguration('caser');
 
-            const regexOptions = config.get<{ label: string; description: string }[]>('regexOptions') 
-            ||  // Default regex options         
-            [
-                { label: '\\b\\w+\\b', description: 'Match words' },
-                { label: '\\d+', description: 'Match numbers' },
-                { label: '[A-Z][a-z]+', description: 'Match capitalized words' },
-                { label: '\\s+', description: 'Match whitespace' },
-                { label: '\\w+@\\w+\\.\\w+', description: 'Match email addresses' }
-            ];
+            const regexOptions = config.get<{ label: string; description: string }[]>('regexOptions')
+                ||  // Default regex options         
+                [
+                    { label: '\\b\\w+\\b', description: 'Match words' },
+                    { label: '\\d+', description: 'Match numbers' },
+                    { label: '[A-Z][a-z]+', description: 'Match capitalized words' },
+                    { label: '\\s+', description: 'Match whitespace' },
+                    { label: '\\w+@\\w+\\.\\w+', description: 'Match email addresses' }
+                ];
 
             const selectedRegex = await vscode.window.showQuickPick(
                 regexOptions.map(option => ({
@@ -1111,11 +1111,11 @@ export function activate(context: vscode.ExtensionContext) {
                 { placeHolder: 'Select a regex or type your own' }
             );
             const regex = selectedRegex?.label
-            ? await vscode.window.showInputBox({
-                  prompt: 'Edit the regex or press Enter to use the selected value',
-                  value: selectedRegex.label // Pre-fill with the selected value
-              })
-            : await vscode.window.showInputBox({ prompt: 'Enter a custom regex' });
+                ? await vscode.window.showInputBox({
+                    prompt: 'Edit the regex or press Enter to use the selected value',
+                    value: selectedRegex.label // Pre-fill with the selected value
+                })
+                : await vscode.window.showInputBox({ prompt: 'Enter a custom regex' });
 
             if (regex) {
                 const regexObj = new RegExp(regex, 'g');
@@ -1123,15 +1123,15 @@ export function activate(context: vscode.ExtensionContext) {
                 for (const selection of selections) {
                     const text = document.getText(selection);
                     const matches = text.matchAll(regexObj);
-   
+
                     if (matches) {
                         for (const match of matches) {
-                           const matchStartIndex = match.index ?? 0;
-                           const matchLength = match[0].length;
-                           const start = document.positionAt(document.offsetAt(selection.start) + matchStartIndex);
-                           const end = start.translate(0, matchLength);
-                           
-                           newSelections.push(new vscode.Selection(start, end));
+                            const matchStartIndex = match.index ?? 0;
+                            const matchLength = match[0].length;
+                            const start = document.positionAt(document.offsetAt(selection.start) + matchStartIndex);
+                            const end = start.translate(0, matchLength);
+
+                            newSelections.push(new vscode.Selection(start, end));
                         }
                     }
                 }
@@ -1291,7 +1291,7 @@ export function activate(context: vscode.ExtensionContext) {
                 for (const selection of selections) {
                     var text = document.getText(selection);
                     if (ix++ === 0) {
-                       text = text.replace(charSetRegex, '');
+                        text = text.replace(charSetRegex, '');
                     }                    // add text to end of document
                     const end = document.lineAt(document.lineCount - 1).range.end;
                     const newText = '\n' + text;
@@ -1510,6 +1510,36 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
     });
+    const toTerminal = vscode.commands.registerCommand('caser.toTerminal', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selections = editor.selections;
+            var terminal = vscode.window.activeTerminal;
+            if (!terminal) {
+                terminal = vscode.window.createTerminal('Caser');
+            }
+            terminal.show();
+            // typically we may have a number of lines selected but not individually.
+            // We want to execute each line in the terminal one at a time.
+            for (const selection of selections) {
+                const sel2 = defaultToLineSelected(editor, selection);
+                var lines = document.getText(sel2);
+                if (lines.length === 0) {
+                    continue;
+                }
+                var linesArray = lines.split('\n');
+                for (const line of linesArray) {
+                    var text = line.trim();
+                    if (text.startsWith('`') && text.endsWith('`')) {
+                        text = text.replaceAll('`', '').trim();
+                    }
+                    // send text to terminal
+                    terminal.sendText(text);
+                }
+            }
+        }
+    });
 
     // ////////////////////////////////////////////////////////////
     // TODO: 02
@@ -1571,6 +1601,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toTogglePipeComma);
     context.subscriptions.push(selectByRegex);
     context.subscriptions.push(toNewLine);
+    context.subscriptions.push(toTerminal);
 }
 
 // This method is called when your extension is deactivated

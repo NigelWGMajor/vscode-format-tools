@@ -104,5 +104,8 @@ The symbol sets can be edited in the settings.json file. When a symbol is placed
 `ac P` to-End      pushes content to end. If starts with a header, that is moved and a loink inserted.
   
 `ac F` to-File      Top line must have file link [a](./filename.md) (this remains)
+
 - the rest moves to that file, link remains. 
 - Repeat to append to file. File is opened and updated.
+
+`acs enter` to Terminal - pushes thtext on eline at a time to the shell.

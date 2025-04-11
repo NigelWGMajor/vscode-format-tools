@@ -108,4 +108,7 @@ The symbol sets can be edited in the settings.json file. When a symbol is placed
 - the rest moves to that file, link remains. 
 - Repeat to append to file. File is opened and updated.
 
-`acs enter` to Terminal - pushes thtext on eline at a time to the shell.
+`acs enter` to Terminal - pushes the one line at a time to the shell.
+- is wrapped in `cmd /k` and `exit`
+- all forward slashes are converted to backslashes.
+- surrounding backticks are removed

@@ -249,9 +249,19 @@ export function activate(context: vscode.ExtensionContext) {
             // const regex = /(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+)* (.*$)/;
             const regex = /(?:^[ \t]*|\d+\.{1}|\s)*(?:[#]+|[>]{1}|[*]{1}|[-]{1}|[+]{1}|(?:\d+\.{1}){0,1}[\t ]+|<!--)* (.*$)/;
             const match = lineText.match(regex);
-            if (match) {
+            // we have an edge condition where the line starts with a symbol followed by a space.
+            if (match && (match.input?.length ?? 0) - match[0]?.length > 1) {
+               // return the entire line
+                return new vscode.Selection(lineRange.start, lineRange.end);
+            }
+            if (match && match[1]?.length > 0) {
                 // if we have a match, adjust the start of the selection to skip over it
-                const offset = match[0].length - match[1].length;
+                var offset = match[0].length - match[1].length;
+                // if the match is at the start of the line, adjust the start of the selection
+                // to the end of the match
+                if (match[0].startsWith(match[1])) {
+                    offset = 0;
+                }
                 const start = lineRange.start.translate(0, offset);
                 const end = lineRange.end;
 
@@ -1529,14 +1539,22 @@ export function activate(context: vscode.ExtensionContext) {
                     continue;
                 }
                 var linesArray = lines.split('\n');
+                var ix = 0;
                 for (const line of linesArray) {
                     var text = line.trim();
                     if (text.startsWith('`') && text.endsWith('`')) {
                         text = text.replaceAll('`', '').trim();
                     }
+                    text = text.replaceAll('/', '\\');
+                    if (ix++ === 0) {
+                        if (!text.toLowerCase().startsWith('cmd')) {
+                            text = 'cmd /k ' + text;
+                        }
+                    }
                     // send text to terminal
                     terminal.sendText(text);
                 }
+                terminal.sendText('exit');
             }
         }
     });

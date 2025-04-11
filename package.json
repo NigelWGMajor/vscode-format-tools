@@ -297,10 +297,6 @@
                 "title": "to-Flip"
             },
             {
-                "command": "caser.toFlip",
-                "title": "to-Flip"
-            },
-            {
                 "command": "caser.toCompact",
                 "title": "to-Compact"
             },
@@ -315,10 +311,6 @@
             {
                 "command": "caser.markStep",
                 "title": "mark-Step"
-            },
-            {
-                "command": "caser.markWarn",
-                "title": "mark-Warn"
             },
             {
                 "command": "caser.markWarn",
@@ -355,10 +347,6 @@
             {
                 "command": "caser.markNone",
                 "title": "mark-none"
-            },
-            {
-                "command": "caser.markLink",
-                "title": "mark-Link"
             },
             {
                 "command": "caser.toEnd",

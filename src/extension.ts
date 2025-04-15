@@ -1538,14 +1538,14 @@ export function activate(context: vscode.ExtensionContext) {
                 if (lines.length === 0) {
                     continue;
                 }
-                var linesArray = lines.split('\n');
+                var linesArray = lines.replace('\r', '').split('\n');
                 var ix = 0;
                 for (const line of linesArray) {
                     var text = line.trim();
                     if (text.startsWith('`') && text.endsWith('`')) {
                         text = text.replaceAll('`', '').trim();
                     }
-                    text = text.replaceAll('/', '\\');
+                    //text = text.replaceAll('/', '\\');
                     if (ix++ === 0) {
                         if (!text.toLowerCase().startsWith('cmd')) {
                             text = 'cmd /k ' + text;

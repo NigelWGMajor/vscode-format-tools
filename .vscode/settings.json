@@ -8,5 +8,25 @@
 	},
 	// Turn off tsc task auto detection since we have the necessary tasks as npm scripts
 	"typescript.tsc.autoDetect": "off",
-	"iis.configDir": ""
+    "iis.configDir": "",
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#55aaaa",
+        "activityBar.background": "#55aaaa",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#954a95",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#55aaaa",
+        "statusBar.background": "#448888",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#55aaaa",
+        "statusBarItem.remoteBackground": "#448888",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#448888",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#44888899",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "448888"
 }

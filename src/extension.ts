@@ -314,7 +314,29 @@ export function activate(context: vscode.ExtensionContext) {
             // Replace the selection with the updated text
             builder.replace(selection, newText);
         });
-
+    }    
+    function atEndSpaced( 
+        editor: vscode.TextEditor,
+    ) {
+        // move the current insertion point to the end of the current selection
+        const document = editor.document;
+        const selections = editor.selections;
+        const newSelections = [];
+        for (const selection of selections) {
+            const line = document.lineAt(selection.start.line);
+            const lineRange = line.range;
+            const lineText = document.getText(lineRange);
+            // find the first space in the line
+            const ix = lineText.indexOf(' ', selection.start.character);
+            if (ix > -1) {
+                // if found, move the selection to the end of the space
+                newSelections.push(new vscode.Selection(line.range.start.translate(0, ix), line.range.start.translate(0, ix)));
+            }
+            else {
+                newSelections.push(new vscode.Selection(selection.end, selection.end));
+            }
+        }
+        editor.selections = newSelections;
     }
     function selectWord(
         editor: vscode.TextEditor,
@@ -1210,6 +1232,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor) {
             //AdjustSelectionsForPrefix(editor);
             await doSymbolsInPlace(editor, setN, setN);
+            atEndSpaced(editor);
         }
     });
     const markWarn = vscode.commands.registerCommand('caser.markWarn', async () => {

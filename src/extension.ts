@@ -251,7 +251,7 @@ export function activate(context: vscode.ExtensionContext) {
             const match = lineText.match(regex);
             // we have an edge condition where the line starts with a symbol followed by a space.
             if (match && (match.input?.length ?? 0) - match[0]?.length > 1) {
-               // return the entire line
+                // return the entire line
                 return new vscode.Selection(lineRange.start, lineRange.end);
             }
             if (match && match[1]?.length > 0) {
@@ -314,8 +314,114 @@ export function activate(context: vscode.ExtensionContext) {
             // Replace the selection with the updated text
             builder.replace(selection, newText);
         });
-    }    
-    function atEndSpaced( 
+    }
+    function atStartSpaced(
+        editor: vscode.TextEditor,
+    ) {
+        // If the cursor is at an end guillemot move it to the start of tye start guillemot
+        const document = editor.document;
+        const selections = editor.selections;
+        const newSelections = [];
+        for (const selection of selections) {
+            const line = document.lineAt(selection.start.line);
+            const lineText = line.text;
+            let position = selection.start.character;
+    
+            if (position > 0) {
+                // Get the character before the cursor
+                const charBefore = lineText.charAt(position - 1);
+    
+                if (charBefore === '\u226B') { // Check for the closing guillemot (≫)
+                    // Move backward to find the opening guillemot (≪)
+                    while (position > 0) {
+                        position--;
+                        const currentChar = lineText.charAt(position);
+    
+                        if (currentChar === '\u226A') { // Found the opening guillemot (≪)
+                            const newPos = new vscode.Position(selection.start.line, position);
+                            newSelections.push(new vscode.Selection(newPos, newPos));
+                            break;
+                        }
+    
+                        // Stop if we reach the start of the line
+                        if (position === 0) {
+                            newSelections.push(selection);
+                            break;
+                        }
+                    }
+                } else {
+                    newSelections.push(selection);
+                }
+            } else {
+                newSelections.push(selection);
+            }
+        }
+        // for (const selection of selections) {
+        //     const line = document.lineAt(selection.start.line);
+        //     const lineRange = line.range;
+        //     var position = selection.start.character;
+        //     if (selection.start.character > 2) {
+        //         var ix = line.text.charAt(selection.start.character - 1);
+        //         var ixx;
+        //         if (ix === '\u226b') {
+        //             // if found, move the selection back to the start of the guillemot
+        //             do {
+        //                 position--;
+        //                 let ixx = line.text.charAt(position);
+        //                 if (ixx === undefined) {
+        //                     break;
+        //                 }
+        //             }
+        //             while (ixx !== '\u226a' && position !== 0);
+        //             if (position >= 0) {
+        //                 var x = new vscode.Position(selection.start.line, position);
+        //                 newSelections.push(new vscode.Selection(x, x));
+        //             }
+        //             else {
+        //                 newSelections.push(selection);
+        //             }
+        //         }
+        //         else {
+        //             newSelections.push(selection);
+        //         }
+        //     }
+        // }
+        editor.selections = newSelections;
+    }
+
+    // Helper function to check if a character is a low surrogate
+    function isLowSurrogate(charCode: number): boolean {
+        return charCode >= 0xDC00 && charCode <= 0xDFFF;
+    }
+    // function atStartSpaced(
+    //     editor: vscode.TextEditor
+    // ) {
+    //     //if the cursor is at the end of a space, move it to the start of the space
+    //     const document = editor.document;
+    //     const selections = editor.selections;
+    //     const newSelections = [];
+    //     for (const selection of selections) {
+    //         const line = document.lineAt(selection.start.line);
+    //         const lineRange = line.range;
+    //         const lineText = document.getText(lineRange);
+    //         // see if there is a space before the cursor
+    //         if (selection.start.character > 0) {
+    //             const ix = lineText.indexOf(' ', selection.start.character - 1);
+    //             if (ix > -1) {
+    //                 // if found, move the selection back one
+    //                 newSelections.push(new vscode.Selection(selection.start.translate(0, -1), selection.start.translate(0, -1)));
+    //                 continue;
+    //             }
+    //             else {
+    //                 newSelections.push(selection);
+    //             }
+    //         }
+    //         else {
+    //             newSelections.push(selection);
+    //         }
+    //     }
+    // }
+    function atEndSpaced(
         editor: vscode.TextEditor,
     ) {
         // move the current insertion point to the end of the current selection
@@ -333,7 +439,7 @@ export function activate(context: vscode.ExtensionContext) {
                 newSelections.push(new vscode.Selection(line.range.start.translate(0, ix), line.range.start.translate(0, ix)));
             }
             else {
-                newSelections.push(new vscode.Selection(selection.end, selection.end));
+                newSelections.push(new vscode.Selection(selection.end.translate(0, 1), selection.end.translate(0, 1)));
             }
         }
         editor.selections = newSelections;
@@ -1227,10 +1333,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
     const markNumber = vscode.commands.registerCommand('caser.markNumber', async () => {
         const editor = vscode.window.activeTextEditor;
-        const config = vscode.workspace.getConfiguration('caser');
-        const setN = config.get<string[]>('numberIcons', ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]);
+        //const config = vscode.workspace.getConfiguration('caser');
+        const setN = ["\u226a1\u226b", "\u226a2\u226b", "\u226a3\u226b", "\u226a4\u226b", "\u226a5\u226b", "\u226a6\u226b"];
         if (editor) {
-            //AdjustSelectionsForPrefix(editor);
+            atStartSpaced(editor); //AdjustSelectionsForPrefix(editor);
             await doSymbolsInPlace(editor, setN, setN);
             atEndSpaced(editor);
         }
@@ -1246,7 +1352,7 @@ export function activate(context: vscode.ExtensionContext) {
     const markUser = vscode.commands.registerCommand('caser.markUser', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('userIcons', ["👬", "😁", "😞", "🤷‍♂️", "🕊️", "🎗️"]);
+        const setA = config.get<string[]>('userIcons', ["👬", "😁", "😞", "☘️", "🕊️", "🎗️"]);
         if (editor) {
             await doSymbolsInPlace(editor, setA, []);
         }
@@ -1276,7 +1382,7 @@ export function activate(context: vscode.ExtensionContext) {
     const markLink = vscode.commands.registerCommand('caser.markLink', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('linkIcons', ["[🔗]()", "[🔖](#)", "[🎟️]()", "[🔀]()", "[ℹ️]()", "[⏪]()", "[⏩]()"]);
+        const setA = config.get<string[]>('linkIcons', ["[🔗]()", "[🔖](#)", "[🎟️]()", "[🔀]()", "[📚]()", "[⏪]()", "[⏩]()"]);
         if (editor) {
             //AdjustSelectionsForPrefix(editor);
             await doSymbolsInPlace(editor, setA, []);

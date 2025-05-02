@@ -1655,12 +1655,19 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor) {
             const document = editor.document;
             const selections = editor.selections;
+            var text = '';
             editor.edit(builder => {
                 for (const selection of selections) {
-                    const text = document.getText(selection);
-                    const result = math.evaluate(text);
-                    const newText = text + ' = ' + result.toString();
-                    builder.replace(selection, newText);
+                    try {
+                        text = document.getText(selection);
+                        const result = math.evaluate(text);
+                        const newText = text + ' = ' + result.toString();
+                        builder.replace(selection, newText);
+                    }
+                    catch (err) {
+                        const newText = text + ' [error](https://mathjs.org/docs/index.html) ';
+                        builder.replace(selection, newText);
+                    }
                 }
             });
         }

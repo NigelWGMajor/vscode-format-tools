@@ -3,6 +3,7 @@
 // import { unescape } from 'querystring';
 import * as vscode from 'vscode';
 import * as crypto from 'crypto-js';
+const math = require('mathjs');
 import { getEnvironmentData } from 'worker_threads';
 import { writeHeapSnapshot } from 'v8';
 
@@ -1649,6 +1650,21 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
     });
+    const toMath = vscode.commands.registerCommand('caser.toMath', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selections = editor.selections;
+            editor.edit(builder => {
+                for (const selection of selections) {
+                    const text = document.getText(selection);
+                    const result = math.evaluate(text);
+                    const newText = text + ' = ' + result.toString();
+                    builder.replace(selection, newText);
+                }
+            });
+        }
+    });
     const toTerminal = vscode.commands.registerCommand('caser.toTerminal', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -1749,6 +1765,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(selectByRegex);
     context.subscriptions.push(toNewLine);
     context.subscriptions.push(toTerminal);
+    context.subscriptions.push(toMath);
 }
 
 // This method is called when your extension is deactivated

@@ -53,7 +53,7 @@
                             "description": "6-char hex colors"
                         },
                         {
-                            "label": "<\/?[a-zA-Z][^>]*>",
+                            "label": "</?[a-zA-Z][^>]*>",
                             "description": "HTML tags"
                         },
                         {
@@ -94,17 +94,18 @@
                 "caser.numberIcons": {
                     "type": "array",
                     "default": [
-                        "\u0030\uFE0F\u20E3", 
-                        "\u0031\uFE0F\u20E3", 
-                        "\u0032\uFE0F\u20E3", 
-                        "\u0033\uFE0F\u20E3", 
-                        "\u0034\uFE0F\u20E3", 
-                        "\u0035\uFE0F\u20E3", 
-                        "\u0036\uFE0F\u20E3", 
-                        "\u0037\uFE0F\u20E3", 
-                        "\u0038\uFE0F\u20E3", 
-                        "\u0039\uFE0F\u20E3", 
-                        "\uD83D\uDD1F"],
+                        "0️⃣",
+                        "1️⃣",
+                        "2️⃣",
+                        "3️⃣",
+                        "4️⃣",
+                        "5️⃣",
+                        "6️⃣",
+                        "7️⃣",
+                        "8️⃣",
+                        "9️⃣",
+                        "🔟"
+                    ],
                     "description": "The set of icons used for numbering."
                 },
                 "caser.stepIcons": {
@@ -162,7 +163,7 @@
                         "[🔖](#)",
                         "[🎟️]()",
                         "[🔀]()",
-                        "[\u2139\uFE0F]()",
+                        "[ℹ️]()",
                         "[⏪]()",
                         "[⏩]()"
                     ],
@@ -174,7 +175,7 @@
                         "👬",
                         "😁",
                         "😞",
-                        "\uD83E\uDD37",
+                        "🤷",
                         "🕊️",
                         "🎗️"
                     ],
@@ -406,6 +407,10 @@
             {
                 "command": "caser.toTerminal",
                 "title": "to-Terminal"
+            },
+            {
+                "command": "caser.toMath",
+                "title": "to-Math"
             }
         ]
     },
@@ -437,6 +442,7 @@
     "dependencies": {
         "@types/vscode": "^1.92.0",
         "crypto-js": "^4.2.0",
+        "mathjs": "^14.4.0",
         "vsce": "^2.15.0"
     }
 }

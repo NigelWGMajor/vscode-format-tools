@@ -1665,6 +1665,29 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
     });
+    const toClipboard = vscode.commands.registerCommand('caser.toClipboard', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selections = editor.selections;
+            var output: string [] = [];
+            editor.edit(builder => {
+                for (const selection of selections) {
+                    const text = document.getText(selection);
+                    // if the selection includes a collapsed region, expand it
+                    const expandedSelection = editor.document.validateRange(selection);
+                    const fullText = document.getText(expandedSelection); 
+                    output.push(fullText);
+                }
+                vscode.env.clipboard.writeText(output.join('\n')).then(() => {
+                    vscode.window.showInformationMessage('Copied to clipboard: ' + output.length.toString() + ' lines');
+                }, (err) => {
+                    vscode.window.showErrorMessage('Failed to copy to clipboard: ' + err);
+                }
+            );
+            });
+        }
+    });
     const toTerminal = vscode.commands.registerCommand('caser.toTerminal', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -1766,6 +1789,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toNewLine);
     context.subscriptions.push(toTerminal);
     context.subscriptions.push(toMath);
+    context.subscriptions.push(toClipboard);
 }
 
 // This method is called when your extension is deactivated

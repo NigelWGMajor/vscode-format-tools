@@ -101,7 +101,7 @@ The symbol sets can be edited in the settings.json file. When a symbol is placed
  
 `ac L` markLink     [🔗]() [🔖](#)  [🎟️]()  [🔀]()  [ℹ️]()  [⏪]()  [⏩]()
  
-`ac P` to-End      pushes content to end. If starts with a header, that is moved and a loink inserted.
+`ac P` to-End      pushes content to end. If starts with a header, that is moved and a link inserted.
   
 `ac F` to-File      Top line must have file link [a](./filename.md) (this remains)
 

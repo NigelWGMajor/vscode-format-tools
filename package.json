@@ -1,8 +1,8 @@
 {
     "name": "caser",
     "displayName": "Caser",
-    "description": "This is the README for extension \"caser\" version 1.0.20.",
-    "version": "1.0.20",
+    "description": "This is the README for extension \"caser\" version 1.0.22.",
+    "version": "1.0.22",
     "engines": {
         "vscode": "^1.92.2"
     },
@@ -185,16 +185,12 @@
         },
         "commands": [
             {
-                "command": "caser.toLowerCase",
-                "title": "to-Lower"
-            },
-            {
-                "command": "caser.toUpperCase",
-                "title": "to-Upper"
-            },
-            {
                 "command": "caser.toTitleCase",
                 "title": "to-Title"
+            },
+            {
+                "command": "caser.toOtherCase",
+                "title": "to-Other"
             },
             {
                 "command": "caser.toCamelCase",

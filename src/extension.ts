@@ -936,7 +936,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
     const toPascalCase = vscode.commands.registerCommand('caser.toPascalCase', () => {
-        const editor = vscode.window.activeTextEditor;
+    const editor = vscode.window.activeTextEditor;
         if (editor) {
             //defaultToWordSelected(editor);
             const document = editor.document;
@@ -946,38 +946,6 @@ export function activate(context: vscode.ExtensionContext) {
                     const adjustedSelection = defaultToLineSelected(editor, selection);
                     const text = document.getText(adjustedSelection);
                     const newText = pascallCase(text);
-                    builder.replace(adjustedSelection, newText);
-                }
-            });
-        }
-    });
-    const toUpperCase = vscode.commands.registerCommand('caser.toUpperCase', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            //defaultToWordSelected(editor);
-            const document = editor.document;
-            const selections = editor.selections;
-            editor.edit(builder => {
-                for (const selection of selections) {
-                    const adjustedSelection = defaultToLineSelected(editor, selection);
-                    const text = document.getText(adjustedSelection);
-                    const newText = upperCase(text);
-                    builder.replace(adjustedSelection, newText);
-                }
-            });
-        }
-    });
-    const toLowerCase = vscode.commands.registerCommand('caser.toLowerCase', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            //defaultToWordSelected(editor);
-            const document = editor.document;
-            const selections = editor.selections;
-            editor.edit(builder => {
-                for (const selection of selections) {
-                    const adjustedSelection = defaultToLineSelected(editor, selection);
-                    const text = document.getText(adjustedSelection);
-                    const newText = lowerCase(text);
                     builder.replace(adjustedSelection, newText);
                 }
             });
@@ -994,6 +962,32 @@ export function activate(context: vscode.ExtensionContext) {
                     const adjustedSelection = defaultToLineSelected(editor, selection);
                     const text = document.getText(adjustedSelection);
                     const newText = titleCase(text);
+                    builder.replace(adjustedSelection, newText);
+                }
+            });
+        }
+    });
+    const toOtherCase = vscode.commands.registerCommand('caser.toOtherCase', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            // defaultToWordSelected(editor);
+            const document = editor.document;
+            const selections = editor.selections;
+            editor.edit(builder => {
+                for (const selection of selections) {
+                    const adjustedSelection = defaultToLineSelected(editor, selection);
+                    const text = document.getText(adjustedSelection);
+                    var newText;
+                    if (text === text.toUpperCase()) {
+                        newText = text.toLowerCase();
+                    }     
+                    else if (text === text.toLowerCase()) {
+                        newText = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                        // make title case
+                    }     
+                    else {
+                        newText = text.toUpperCase();
+                    }
                     builder.replace(adjustedSelection, newText);
                 }
             });
@@ -1227,7 +1221,11 @@ export function activate(context: vscode.ExtensionContext) {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const document = editor.document;
-            const selections = editor.selections;
+            var selections = [... editor.selections];
+            // if no selections, select the whole document
+            if (selections.length === 0) {
+                selections.push(new vscode.Selection(0, 0, document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length));
+            }
             var newSelections: vscode.Selection[] = [];
             // read the regexOptins from the caser settings
             const config = vscode.workspace.getConfiguration('caser');
@@ -1335,17 +1333,17 @@ export function activate(context: vscode.ExtensionContext) {
     const markNumber = vscode.commands.registerCommand('caser.markNumber', async () => {
         const editor = vscode.window.activeTextEditor;
         //const config = vscode.workspace.getConfiguration('caser');
-        const setN = ["\u226a1\u226b", "\u226a2\u226b", "\u226a3\u226b", "\u226a4\u226b", "\u226a5\u226b", "\u226a6\u226b"];
+        const setN = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
         if (editor) {
             atStartSpaced(editor); //AdjustSelectionsForPrefix(editor);
             await doSymbolsInPlace(editor, setN, setN);
-            atEndSpaced(editor);
+            //atEndSpaced(editor);
         }
     });
     const markWarn = vscode.commands.registerCommand('caser.markWarn', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('warnIcons', ["💥", "⚠️", "🪲", "🩹", "⏳", "📌"]);
+        const setA = config.get<string[]>('warnIcons', [ "📌", "💥", "⚠️", "🪲", "🩹", "⏳"]);
         if (editor) {
             await doSymbolsInPlace(editor, setA, []);
         }
@@ -1411,7 +1409,7 @@ export function activate(context: vscode.ExtensionContext) {
             // Move the selected text to the end of the document
             const document = editor.document;
             const selections = editor.selections;
-            // if the selection starrts with a heading make a link to the heading first
+            // if the selection starts with a heading make a link to the heading first
             var replacement = '';
             const heading = document.lineAt(selections[0].start.line).text;
             const config = vscode.workspace.getConfiguration('caser');
@@ -1743,9 +1741,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toKebabCase);
     context.subscriptions.push(toSnakeCase);
     context.subscriptions.push(toPascalCase);
-    context.subscriptions.push(toUpperCase);
-    context.subscriptions.push(toLowerCase);
     context.subscriptions.push(toTitleCase);
+    context.subscriptions.push(toOtherCase);
     context.subscriptions.push(toSpaceCase);
     context.subscriptions.push(toEscaped);
     context.subscriptions.push(toUnEscaped);
@@ -1797,7 +1794,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toTerminal);
     context.subscriptions.push(toMath);
     context.subscriptions.push(toClipboard);
-}
+} 
 
 // This method is called when your extension is deactivated
 // export function deactivate() {}

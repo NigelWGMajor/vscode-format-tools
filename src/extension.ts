@@ -15,6 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
     // Add your function in this section then look for TODO: 02
     ///////////////////////////////////////////////////////////////
 
+    let isDimActive = false;
+
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Caser support is loaded for camelCase, snake_case, kebab-case, PascalCase, UPPER_CASE, lower_case, Title Case, and Space Case, escape and unescape');
@@ -327,23 +329,23 @@ export function activate(context: vscode.ExtensionContext) {
             const line = document.lineAt(selection.start.line);
             const lineText = line.text;
             let position = selection.start.character;
-    
+
             if (position > 0) {
                 // Get the character before the cursor
                 const charBefore = lineText.charAt(position - 1);
-    
+
                 if (charBefore === '\u226B') { // Check for the closing guillemot (≫)
                     // Move backward to find the opening guillemot (≪)
                     while (position > 0) {
                         position--;
                         const currentChar = lineText.charAt(position);
-    
+
                         if (currentChar === '\u226A') { // Found the opening guillemot (≪)
                             const newPos = new vscode.Position(selection.start.line, position);
                             newSelections.push(new vscode.Selection(newPos, newPos));
                             break;
                         }
-    
+
                         // Stop if we reach the start of the line
                         if (position === 0) {
                             newSelections.push(selection);
@@ -586,6 +588,59 @@ export function activate(context: vscode.ExtensionContext) {
         });
         editor.selections = newSelections;
     }
+
+    function updateTextVisibility(
+        editor: vscode.TextEditor,
+        isActive: boolean,
+        hideDecorationType: vscode.TextEditorDecorationType,
+        dimRule: string
+    ) {
+        const decorationsArray: vscode.DecorationOptions[] = [];
+
+        if (isDimActive && dimRule) {
+            // dimRule can be e.g. '<pre:pre>' or any string for matching
+            // For demo, split by ':' to allow multiple matchers, or just use as substring
+            const matchers = dimRule.split(':').map(s => s.trim()).filter(Boolean);
+            for (let i = 0; i < editor.document.lineCount; i++) {
+                const line = editor.document.lineAt(i);
+                const text = line.text;
+                if (matchers.some(matcher => text.includes(matcher))) {
+                    const range = new vscode.Range(i, 0, i, line.text.length);
+                    decorationsArray.push({ range });
+                }
+            }
+        }
+        editor.setDecorations(hideDecorationType, decorationsArray);
+    }
+    const hideDecorationType = vscode.window.createTextEditorDecorationType({
+        textDecoration: 'none; color: #8886;',
+    });
+
+    const toDimmed = vscode.commands.registerCommand('caser.toDimmed', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        // Read settings array and find the first string matching the current language
+        const config = vscode.workspace.getConfiguration();
+        const definitions: string[] = config.get('caser.dimTaggedDefinitions', []);
+        const languageId = editor.document.languageId;
+        // Find a definition string that starts with the languageId followed by a colon
+        const match = definitions.find(defStr => defStr.startsWith(languageId + ':'));
+        let dimRule = '';
+        if (match) {
+            dimRule = match.substring(languageId.length + 1); // everything after 'lang:'
+        }
+        else {
+            // nothing to do in this language.
+            vscode.window.setStatusBarMessage('');
+            return;
+        }
+        isDimActive = !isDimActive;
+        updateTextVisibility(editor, isDimActive, hideDecorationType, dimRule);
+        vscode.window.setStatusBarMessage(`${isDimActive ? 'dim' : '==='}`);
+    });
     const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -936,7 +991,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
     const toPascalCase = vscode.commands.registerCommand('caser.toPascalCase', () => {
-    const editor = vscode.window.activeTextEditor;
+        const editor = vscode.window.activeTextEditor;
         if (editor) {
             //defaultToWordSelected(editor);
             const document = editor.document;
@@ -970,7 +1025,7 @@ export function activate(context: vscode.ExtensionContext) {
     const toOtherCase = vscode.commands.registerCommand('caser.toOtherCase', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-            // defaultToWordSelected(editor);
+            defaultToWordSelected(editor);
             const document = editor.document;
             const selections = editor.selections;
             editor.edit(builder => {
@@ -980,11 +1035,11 @@ export function activate(context: vscode.ExtensionContext) {
                     var newText;
                     if (text === text.toUpperCase()) {
                         newText = text.toLowerCase();
-                    }     
+                    }
                     else if (text === text.toLowerCase()) {
                         newText = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
                         // make title case
-                    }     
+                    }
                     else {
                         newText = text.toUpperCase();
                     }
@@ -1221,7 +1276,7 @@ export function activate(context: vscode.ExtensionContext) {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const document = editor.document;
-            var selections = [... editor.selections];
+            var selections = [...editor.selections];
             // if no selections, select the whole document
             if (selections.length === 0) {
                 selections.push(new vscode.Selection(0, 0, document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length));
@@ -1343,9 +1398,9 @@ export function activate(context: vscode.ExtensionContext) {
     const markWarn = vscode.commands.registerCommand('caser.markWarn', async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('caser');
-        const setA = config.get<string[]>('warnIcons', [ "📌", "💥", "⚠️", "🪲", "🩹", "⏳"]);
+        const setA = config.get<string[]>('warnIcons', ["📌", "💥", "⚠️", "🪲", "🩹", "⏳"]);
         if (editor) {
-            await doSymbolsInPlace(editor, setA, []);
+            await doSymbolsInPlace(editor, setA, setA);
         }
     });
     const markUser = vscode.commands.registerCommand('caser.markUser', async () => {
@@ -1353,7 +1408,7 @@ export function activate(context: vscode.ExtensionContext) {
         const config = vscode.workspace.getConfiguration('caser');
         const setA = config.get<string[]>('userIcons', ["👬", "😁", "😞", "☘️", "🕊️", "🎗️"]);
         if (editor) {
-            await doSymbolsInPlace(editor, setA, []);
+            await doSymbolsInPlace(editor, setA, setA);
         }
     });
     const markRef = vscode.commands.registerCommand('caser.markRef', async () => {
@@ -1361,7 +1416,7 @@ export function activate(context: vscode.ExtensionContext) {
         const config = vscode.workspace.getConfiguration('caser');
         const setA = config.get<string[]>('refIcons', ["🎟️", "🔀", "⚗️", "📚", "📆", "🔒"]);
         if (editor) {
-            await doSymbolsInPlace(editor, setA, []);
+            await doSymbolsInPlace(editor, setA, setA);
         }
     });
     const markStep = vscode.commands.registerCommand('caser.markStep', async () => {
@@ -1384,7 +1439,7 @@ export function activate(context: vscode.ExtensionContext) {
         const setA = config.get<string[]>('linkIcons', ["[🔗]()", "[🔖](#)", "[🎟️]()", "[🔀]()", "[📚]()", "[⏪]()", "[⏩]()"]);
         if (editor) {
             //AdjustSelectionsForPrefix(editor);
-            await doSymbolsInPlace(editor, setA, []);
+            await doSymbolsInPlace(editor, setA, setA);
         }
     });
     const markNone = vscode.commands.registerCommand('caser.markNone', () => {
@@ -1675,13 +1730,13 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor) {
             const document = editor.document;
             const selections = editor.selections;
-            var output: string [] = [];
+            var output: string[] = [];
             editor.edit(builder => {
                 for (const selection of selections) {
                     const text = document.getText(selection);
                     // if the selection includes a collapsed region, expand it
                     const expandedSelection = editor.document.validateRange(selection);
-                    const fullText = document.getText(expandedSelection); 
+                    const fullText = document.getText(expandedSelection);
                     output.push(fullText);
                 }
                 vscode.env.clipboard.writeText(output.join('\n')).then(() => {
@@ -1689,7 +1744,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }, (err) => {
                     vscode.window.showErrorMessage('Failed to copy to clipboard: ' + err);
                 }
-            );
+                );
             });
         }
     });
@@ -1794,7 +1849,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toTerminal);
     context.subscriptions.push(toMath);
     context.subscriptions.push(toClipboard);
-} 
+    context.subscriptions.push(toDimmed);
+}
 
 // This method is called when your extension is deactivated
 // export function deactivate() {}

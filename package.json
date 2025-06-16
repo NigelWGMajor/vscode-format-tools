@@ -1,8 +1,8 @@
 {
     "name": "caser",
     "displayName": "Caser",
-    "description": "This is the README for extension \"caser\" version 1.0.22.",
-    "version": "1.0.22",
+    "description": "This is the README for extension \"caser\" version 1.0.24.",
+    "version": "1.0.24",
     "engines": {
         "vscode": "^1.92.2"
     },
@@ -21,6 +21,16 @@
             "type": "object",
             "title": "Caser Settings",
             "properties": {
+                "caser.dimTaggedDefinitions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        "markdown:<pre:pre>"
+                    ],
+                    "description": "An array of language-dependent tags for detection of dimable lines, for example: ['markdown:<pre:pre>']"
+                },
                 "regexPatterns": {
                     "type": "array",
                     "default": [
@@ -172,18 +182,27 @@
                 "caser.userIcons": {
                     "type": "array",
                     "default": [
-                        "👬",
-                        "😁",
-                        "😞",
-                        "🤷",
-                        "🕊️",
-                        "🎗️"
+                        "<-> ",
+                        "==> ",
+                        "<-- ",
+                        "[!] ",
+                        "[+] ",
+                        "[*] ",
+                        "(s) ",
+                        "(t) ",
+                        "{d} ",
+                        "{t} ",
+                        "{g} "
                     ],
                     "description": "The set of icons used for user marking."
                 }
             }
         },
         "commands": [
+            {
+                "command": "caser.toDimmed",
+                "title": "to-Dimmed"
+            },
             {
                 "command": "caser.toTitleCase",
                 "title": "to-Title"

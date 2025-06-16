@@ -8,10 +8,20 @@ This is a text editor extension providing enhanced text editing. Multiple select
 
 Suggested keybindings:
 
-|--|--|--|--
-|cs| ctrl + shift|         common|most simple formatting changes
-|as| alt + shift|          alt|        more complex changes, some undos
-|ac |alt + ctrl|             organizing| marking, cycling and moving
+|---|--------------|------------|----------------------------------|
+|cs | ctrl + shift |      common|most simple formatting changes    |
+|as | alt  + shift |      alt   |more complex changes, some undos  | 
+|ac | alt  + ctrl  |  organizing| marking, cycling and moving      |
+
+## caser Properties
+
+**dimTaggedDefinitions** defines whether to dim lines matching tag definitions in the current language. This is used by the `to-Dimmed` command. This is an array of strings: each string starts with the target language id (e.g. `markdown` or `sql`) followed by one or more tags to detect, all seperated with colons. For example, to dim lines with `<pre` or `pre>` tags in markdown, you would set the property to: `markdown:<pre:pre>`. To dim lines with `--` in SQL, you would set the property to: `sql:--`. Only one string per language.
+
+**regexPatterns** lists useful regex patterns for use by the `Select by Regex` function.
+
+**dotIcons, squareIcons, numberIcons, stepIcons, queryIcons, refIcons, warnIcons, linkIcons, userIcons**
+
+These define the symbols or icons to be used by the various marking functions.
 
 ### Exchange
 
@@ -70,6 +80,8 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 `as >` to-trailing      (l) pushes a comma-separated list to training commas multiline
 `as R` to-Select-by-Regex  selects based on regex
 `as N` as New Line      (w) place each selection on a new line
+`as D` to-Dimmed            for each language, toggles dimming on any line matching tag definitions. 
+                            (uses caser.dimTaggedDefinitions setting)
 
 ### Dummy text
 

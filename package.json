@@ -27,7 +27,8 @@
                         "type": "string"
                     },
                     "default": [
-                        "markdown:<pre:pre>"
+                        "markdown:<pre:pre>", 
+                        "sql:--"
                     ],
                     "description": "An array of language-dependent tags for detection of dimable lines, for example: ['markdown:<pre:pre>']"
                 },

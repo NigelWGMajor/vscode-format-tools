@@ -596,8 +596,8 @@ export function activate(context: vscode.ExtensionContext) {
         dimRule: string
     ) {
         const decorationsArray: vscode.DecorationOptions[] = [];
-
-        if (isDimActive && dimRule) {
+        if (isActive && dimRule) {
+            const regexPatterns = dimRule.split(':').map(s => s.trim()).filter(Boolean).map(pattern => new RegExp(pattern, 'g'));
             // dimRule can be e.g. '<pre:pre>' or any string for matching
             // For demo, split by ':' to allow multiple matchers, or just use as substring
             const matchers = dimRule.split(':').map(s => s.trim()).filter(Boolean);

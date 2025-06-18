@@ -589,6 +589,40 @@ export function activate(context: vscode.ExtensionContext) {
         editor.selections = newSelections;
     }
 
+    function updateTextVisibilityR(
+        editor: vscode.TextEditor,
+        isActive: boolean,
+        decorationType: vscode.TextEditorDecorationType,
+        dimRule: string) {
+        const decorations: vscode.DecorationOptions[] = [];
+
+        if (isDimActive && dimRule) {
+            const regexPatterns = dimRule.split(':').map(s => s.trim()).filter(Boolean).map(pattern => new RegExp(pattern, 'g'));
+
+
+            for (let lineNum = 0; lineNum < editor.document.lineCount; lineNum++) {
+                const lineText = editor.document.lineAt(lineNum).text;
+
+                regexPatterns.forEach(regex => {
+                    let match: RegExpExecArray | null;
+                    const globalRegex = new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : regex.flags + 'g');
+                    while ((match = globalRegex.exec(lineText)) !== null) {
+                        const startPos = new vscode.Position(lineNum, match.index);
+                        const endPos = new vscode.Position(lineNum, match.index + match[0].length);
+                        decorations.push({ range: new vscode.Range(startPos, endPos) });
+                    }
+                });
+            }
+        }
+
+        editor.setDecorations(decorationType, decorations);
+    }
+
+
+
+
+
+
     function updateTextVisibility(
         editor: vscode.TextEditor,
         isActive: boolean,
@@ -624,7 +658,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Read settings array and find the first string matching the current language
         const config = vscode.workspace.getConfiguration();
-        const definitions: string[] = config.get('caser.dimTaggedDefinitions', []);
+        const definitions: string[] = config.get('caser.dimmableMatches', []);
         const languageId = editor.document.languageId;
         // Find a definition string that starts with the languageId followed by a colon
         const match = definitions.find(defStr => defStr.startsWith(languageId + ':'));
@@ -638,7 +672,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         isDimActive = !isDimActive;
-        updateTextVisibility(editor, isDimActive, hideDecorationType, dimRule);
+        updateTextVisibilityR(editor, isDimActive, hideDecorationType, dimRule);
         vscode.window.setStatusBarMessage(`${isDimActive ? 'dim' : '==='}`);
     });
     const toQuoted = vscode.commands.registerCommand('caser.toQuoted', () => {

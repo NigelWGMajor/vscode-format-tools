@@ -15,7 +15,7 @@ Suggested keybindings:
 
 ## caser Properties
 
-**dimTaggedDefinitions** defines whether to dim lines matching tag definitions in the current language. This is used by the `to-Dimmed` command. This is an array of strings: each string starts with the target language id (e.g. `markdown` or `sql`) followed by one or more tags to detect, all seperated with colons. For example, to dim lines with `<pre` or `pre>` tags in markdown, you would set the property to: `markdown:<pre:pre>`. To dim lines with `--` in SQL, you would set the property to: `sql:--`. Only one string per language.
+**dimmableMatches** defines whether to dim lines matching tag definitions in the current language. This is used by the `to-Dimmed` command. This is an array of strings: each string starts with the target language id (e.g. `markdown` or `sql`) followed by one or more regex expressions, all seperated with colons. For example, to dim lines with `<pre` or `pre>` tags in markdown, you would set the property to: `markdown:<pre:pre>`. To dim lines with `--` in SQL, you would set the property to: `sql:--`. Only one string per language, but multiple regex expressions are supported.
 
 **regexPatterns** lists useful regex patterns for use by the `Select by Regex` function.
 
@@ -52,9 +52,9 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 `cs "`   to-Quoted      (l) 
 `cs '`   to-SQuoted     (l) 
 `c bt `  to-BackTick    (l) 
-`as "`  to-UnQuoted    (l) 
-`as '`  to-UnSQuoted   (l) 
-`as  bt`  to-UnBackTick  (l)
+`as "`   to-UnQuoted    (l) 
+`as '`   to-UnSQuoted   (l) 
+`as bt`  to-UnBackTick  (l)
 `cs {`   to-Curly       (l) { 
 `cs }`   to-NoCurly     (l)   }
 `cs <`   to-Angle       (w) < 
@@ -80,8 +80,8 @@ In a word, letters selected| Exchanges the start of the word and the end, eaving
 `as >` to-trailing      (l) pushes a comma-separated list to training commas multiline
 `as R` to-Select-by-Regex  selects based on regex
 `as N` as New Line      (w) place each selection on a new line
-`as D` to-Dimmed            for each language, toggles dimming on any line matching tag definitions. 
-                            (uses caser.dimTaggedDefinitions setting)
+`as D` to-Dimmed            toggles dimming on any line matched in the dimmableMatches setting for the current language
+                          
 
 ### Dummy text
 

@@ -28,5 +28,6 @@
         "titleBar.inactiveBackground": "#44888899",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "448888"
+    "peacock.color": "448888",
+    "caser.dimTaggedDefinitions": []
 }

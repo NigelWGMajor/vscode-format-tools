@@ -1,8 +1,8 @@
 {
     "name": "caser",
     "displayName": "Caser",
-    "description": "This is the README for extension \"caser\" version 1.0.24.",
-    "version": "1.0.24",
+    "description": "This is the README for extension \"caser\" version 1.0.25.",
+    "version": "1.0.25",
     "engines": {
         "vscode": "^1.92.2"
     },
@@ -21,16 +21,16 @@
             "type": "object",
             "title": "Caser Settings",
             "properties": {
-                "caser.dimTaggedDefinitions": {
+                "caser.dimmableMatches": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     },
                     "default": [
-                        "markdown:<pre:pre>", 
+                        "markdown:<[/]{0,1}[a-zA-Z ]+[^>]*>", 
                         "sql:--"
                     ],
-                    "description": "An array of language-dependent tags for detection of dimable lines, for example: ['markdown:<pre:pre>']"
+                    "description": "An array of language and 1 or more regex expressions (colon-separated) to detect dimmable text"
                 },
                 "regexPatterns": {
                     "type": "array",

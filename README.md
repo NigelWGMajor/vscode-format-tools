@@ -2,6 +2,13 @@
 
 This is the README for extension "caser" 
 
+## Building
+
+Update version in `package.json`
+
+manual build: `npm run compile`
+build and package: `npx vsce package`
+
 ## Features
 
 This is a text editor extension providing enhanced text editing. Multiple selections are usually accepted: where noted, defaults will be applied when there is no selection: w: defaults to current word l: defaults to current line 

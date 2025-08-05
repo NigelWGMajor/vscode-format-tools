@@ -1,11 +1,54 @@
+# Development files
 .vscode/**
 .vscode-test/**
 src/**
-.gitignore
-.yarnrc
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/.eslintrc.json
-**/*.map
+test/**
+tests/**
+coverage/**
+
+# Build artifacts that should be excluded (but keep out/ folder!)
+*.ts
+src/**/*.map
 **/*.ts
-**/.vscode-test.*
+# Note: tsconfig.json is needed for the prepublish build step
+# tsconfig.*.json
+# IMPORTANT: All .js files are included (not excluded) - needed for extension to run
+
+# Dependencies and lock files
+# node_modules/**
+yarn.lock
+package-lock.json
+
+# Git and version control
+.git/**
+.gitignore
+
+# Documentation and setup files that aren't needed in VSIX
+vsc-extension-quickstart.md
+CHANGELOG.md
+Keybindings*.md
+
+# Config files
+**/.eslintrc.json
+.vscodesettings.json
+
+# Logs and temporary files
+*.log
+*.env
+*.env.*
+npm-debug.log*
+
+# Previous VSIX files
+*.vsix
+
+# Command files
+*.cmd
+
+# PDF files
+*.pdf
+
+# Test files
+.vscode-test.mjs
+
+# This file itself
+.vscodeignore

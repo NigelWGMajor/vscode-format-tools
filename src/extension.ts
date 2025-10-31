@@ -1851,25 +1851,46 @@ export function activate(context: vscode.ExtensionContext) {
         // Build the serialization expression
         const expression = `System.Text.Json.JsonSerializer.Serialize(${selectedText})`;
 
-        // Create an empty JSON document for output
-        const jsonDoc = await vscode.workspace.openTextDocument({
-            content: '',
-            language: 'json'
-        });
-
-        const jsonEditor = await vscode.window.showTextDocument(jsonDoc, {
-            viewColumn: vscode.ViewColumn.Beside,
-            preserveFocus: true
-        });
-
         try {
-            // Switch to JSON document
-            await vscode.window.showTextDocument(jsonDoc, {
+            // Create temp document with expression
+            const tempDoc = await vscode.workspace.openTextDocument({
+                content: expression,
+                language: 'csharp'
+            });
+
+            const tempEditor = await vscode.window.showTextDocument(tempDoc, {
+                preview: false,
+                preserveFocus: false
+            });
+
+            // Select all text
+            const fullRange = new vscode.Range(
+                tempDoc.lineAt(0).range.start,
+                tempDoc.lineAt(tempDoc.lineCount - 1).range.end
+            );
+            tempEditor.selection = new vscode.Selection(fullRange.start, fullRange.end);
+
+            // Send to REPL
+            await vscode.commands.executeCommand('editor.debug.action.selectionToRepl');
+
+            // Wait for output to appear in clipboard
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Close temp document
+            await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+
+            // Create JSON document
+            const jsonDoc = await vscode.workspace.openTextDocument({
+                content: '',
+                language: 'json'
+            });
+
+            const jsonEditor = await vscode.window.showTextDocument(jsonDoc, {
                 viewColumn: vscode.ViewColumn.Beside,
                 preserveFocus: false
             });
 
-            // Wait a moment
+            // Wait a moment for focus
             await new Promise(resolve => setTimeout(resolve, 200));
 
             // Get clipboard content
@@ -1883,9 +1904,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (success) {
                 // Format the document
                 await vscode.commands.executeCommand('editor.action.formatDocument');
-                vscode.window.showInformationMessage('JSON formatted!');
-            } else {
-                vscode.window.showErrorMessage('Insert failed!');
+                vscode.window.showInformationMessage('JSON dumped and formatted!');
             }
 
         } catch (error: any) {

@@ -1,8 +1,8 @@
 {
     "name": "caser",
     "displayName": "Caser",
-    "description": "This is the README for extension \"caser\" version 1.0.25.",
-    "version": "1.0.25",
+    "description": "This is the README for extension \"caser\" version 1.0.26.",
+    "version": "1.0.26",
     "engines": {
         "vscode": "^1.92.2"
     },
@@ -431,6 +431,10 @@
             {
                 "command": "caser.toClipboard",
                 "title": "to-Clipboard"
+            },
+            {
+                "command": "caser.toDebugDump",
+                "title": "to-DebugDump"
             }
         ]
     },

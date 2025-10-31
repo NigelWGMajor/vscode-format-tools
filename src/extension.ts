@@ -1820,11 +1820,81 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     });
+    const toDebugDump = vscode.commands.registerCommand('caser.toDebugDump', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage('No active editor found');
+            return;
+        }
 
-    // ////////////////////////////////////////////////////////////
-    // TODO: 02
-    // Add your subscription in this section then look for 
-    // 'command' in package.json and add your command.
+        // Check if the active document is C#
+        if (editor.document.languageId !== 'csharp') {
+            vscode.window.showErrorMessage('This command only works with C# files');
+            return;
+        }
+
+        // Check if there's an active debug session
+        const debugSession = vscode.debug.activeDebugSession;
+        if (!debugSession) {
+            vscode.window.showErrorMessage('No active debug session. Please start debugging first.');
+            return;
+        }
+
+        const selection = editor.selection;
+        const selectedText = editor.document.getText(selection).trim();
+
+        if (!selectedText) {
+            vscode.window.showErrorMessage('Please select a variable or expression to dump');
+            return;
+        }
+
+        // Build the serialization expression
+        const expression = `System.Text.Json.JsonSerializer.Serialize(${selectedText})`;
+
+        // Create an empty JSON document for output
+        const jsonDoc = await vscode.workspace.openTextDocument({
+            content: '',
+            language: 'json'
+        });
+
+        const jsonEditor = await vscode.window.showTextDocument(jsonDoc, {
+            viewColumn: vscode.ViewColumn.Beside,
+            preserveFocus: true
+        });
+
+        try {
+            // Switch to JSON document
+            await vscode.window.showTextDocument(jsonDoc, {
+                viewColumn: vscode.ViewColumn.Beside,
+                preserveFocus: false
+            });
+
+            // Wait a moment
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Get clipboard content
+            const clipboardText = await vscode.env.clipboard.readText();
+
+            // Insert clipboard content
+            const success = await jsonEditor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), clipboardText);
+            });
+
+            if (success) {
+                // Format the document
+                await vscode.commands.executeCommand('editor.action.formatDocument');
+                vscode.window.showInformationMessage('JSON formatted!');
+            } else {
+                vscode.window.showErrorMessage('Insert failed!');
+            }
+
+        } catch (error: any) {
+            const errorMsg = error?.message || error?.toString() || 'Unknown error';
+            vscode.window.showErrorMessage(`Failed: ${errorMsg}`);
+        }
+    });
+
+    // OLD CODE REMOVED FOR TESTING - Will restore once simple test works
     ///////////////////////////////////////////////////////////////
     context.subscriptions.push(toCamelCase);
     context.subscriptions.push(toKebabCase);
@@ -1884,6 +1954,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(toMath);
     context.subscriptions.push(toClipboard);
     context.subscriptions.push(toDimmed);
+    context.subscriptions.push(toDebugDump);
 }
 
 // This method is called when your extension is deactivated

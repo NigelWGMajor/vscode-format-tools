@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run compile:*)",
+      "Bash(npx vsce:*)",
+      "Bash(src/extension.temp)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

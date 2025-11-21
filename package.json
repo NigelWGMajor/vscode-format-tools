@@ -27,7 +27,7 @@
                         "type": "string"
                     },
                     "default": [
-                        "markdown:<[/]{0,1}[a-zA-Z ]+[^>]*>", 
+                        "markdown:<[/]{0,1}[a-zA-Z ]+[^>]*>",
                         "sql:--"
                     ],
                     "description": "An array of language and 1 or more regex expressions (colon-separated) to detect dimmable text"
@@ -435,20 +435,17 @@
             {
                 "command": "caser.toClipboard",
                 "title": "to-Clipboard"
-            },
-            {
-                "command": "caser.toDebugDump",
-                "title": "to-DebugDump"
             }
         ]
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
-        "lint": "eslint src --ext ts",
-        "test": "vscode-test"
+        "compile": "npm run check-types && node esbuild.js",
+        "check-types": "tsc --noEmit",
+        "watch": "npm-run-all -p watch:*",
+        "watch:esbuild": "node esbuild.js --watch",
+        "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+        "vscode:prepublish": "npm run package",
+        "package": "npm run check-types && node esbuild.js --production"
     },
     "devDependencies": {
         "@types/crypto-js": "^4.2.2",

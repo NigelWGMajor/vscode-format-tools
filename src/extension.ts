@@ -1791,7 +1791,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (!terminal) {
                 terminal = vscode.window.createTerminal({
                     name: 'Caser',
-                    shellPath: 'bash'
+                    shellPath: 'gitbash'
                 });
             }
             terminal.show();
@@ -1812,7 +1812,6 @@ export function activate(context: vscode.ExtensionContext) {
                     // send text to terminal
                     terminal.sendText(text);
                 }
-                terminal.sendText('exit');
             }
         }
     });

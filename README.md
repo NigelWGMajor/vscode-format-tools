@@ -132,23 +132,4 @@ The symbol sets can be edited in the settings.json file. When a symbol is placed
 - all forward slashes are converted to backslashes.
 - surrounding backticks are removed
 
-### Debug Tools (C# Only)
-
-`to-DebugDump` - Evaluates selected expression in debug console and captures JSON output
-
-**Requirements:**
-- Active C# file
-- Running debug session (breakpoint hit)
-
-**Workflow:**
-1. Select a variable or expression (e.g., `myObject`, `user.Address`)
-2. Run command via Command Palette: "to-DebugDump"
-3. The command wraps selection in `System.Text.Json.JsonSerializer.Serialize({selection})`
-4. Evaluates expression in debug console
-5. Automatically creates a new formatted JSON document with the result
-
-**Benefits:**
-- Eliminates manual clipboard workflow
-- Automatic JSON formatting with proper indentation
-- Creates syntax-highlighted JSON document
-- Ideal for inspecting complex objects during debugging
+`acs b` to Bash like above but uses bash shell.

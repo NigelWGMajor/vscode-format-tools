@@ -1,13 +1,23 @@
 # caser README
 
-This is the README for extension "caser" 
+This is the README for extension "caser"
 
-## Building
+## Building and Running
 
-Update version in `package.json`
+### Development
+- `npm install` - Install dependencies
+- `npm run compile` - Build the extension using webpack (development mode)
+- `npm run watch` - run packageontinuous compilation during development
+- `npm run check-types` - Run TypeScript type checking without compilation
 
-manual build: `npm run compile`
-build and package: `npx vsce package`
+### Packaging
+- Update version in `package.json`
+- `npm run package` - Build optimized production bundle
+- `npx vsce package` - Create .vsix extension package
+
+### Testing
+- Press F5 in VS Code to launch Extension Development Host
+- The extension will be loaded from `./dist/extension.js` (bundled output)
 
 ## Features
 

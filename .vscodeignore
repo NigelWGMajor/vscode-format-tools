@@ -52,3 +52,12 @@ npm-debug.log*
 
 # This file itself
 .vscodeignore
+
+# From the bundling:
+.vscode
+node_modules
+out/
+src/
+tsconfig.json
+webpack.config.js
+esbuild.js

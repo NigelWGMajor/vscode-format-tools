@@ -15,7 +15,7 @@
     },
     "publisher": "major-nix-test",
     "activationEvents": [],
-    "main": "./out/extension.js",
+    "main": "./dist/extension",
     "contributes": {
         "configuration": {
             "type": "object",
@@ -439,13 +439,20 @@
         ]
     },
     "scripts": {
-        "compile": "npm run check-types && node esbuild.js",
+        "xcompile": "npm run check-types && node esbuild.js",
         "check-types": "tsc --noEmit",
-        "watch": "npm-run-all -p watch:*",
+        "xwatch": "npm-run-all -p watch:*",
         "watch:esbuild": "node esbuild.js --watch",
-        "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+        "xwatch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+        "xvscode:prepublish": "npm run package",
+        "xpackage": "npm run check-types && node esbuild.js --production",
+        "compile": "webpack --mode development",
+        "watch": "webpack --mode development --watch",
         "vscode:prepublish": "npm run package",
-        "package": "npm run check-types && node esbuild.js --production"
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "compile-tests": "tsc -p . --outDir out",
+        "pretest": "npm run compile-tests",
+        "test": "vscode-test"
     },
     "devDependencies": {
         "@types/crypto-js": "^4.2.2",
@@ -456,7 +463,11 @@
         "@vscode/test-cli": "^0.0.9",
         "@vscode/test-electron": "^2.4.0",
         "eslint": "^8.57.0",
-        "typescript": "^5.4.5"
+        "npm-run-all": "^4.1.5",
+        "ts-loader": "^9.5.4",
+        "typescript": "^5.4.5",
+        "webpack": "^5.103.0",
+        "webpack-cli": "^6.0.1"
     },
     "bugs": {
         "url": "https://github.com/NigelWGMajor/vscode-format-tools/issues"

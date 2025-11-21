@@ -425,6 +425,10 @@
                 "title": "to-Terminal"
             },
             {
+                "command": "caser.toBash",
+                "title": "to-Bash"
+            },
+            {
                 "command": "caser.toMath",
                 "title": "to-Math"
             },

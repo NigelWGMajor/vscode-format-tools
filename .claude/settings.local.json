@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm run compile:*)",
       "Bash(npx vsce:*)",
-      "Bash(src/extension.temp)"
+      "Bash(src/extension.temp)",
+      "Bash(dir \"C:\\source\\Nix\\caser\\src\")",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

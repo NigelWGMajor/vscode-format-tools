@@ -779,9 +779,9 @@ export function activate(context: vscode.ExtensionContext) {
 
                     const content = existingContent + text;
 
-                    await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
+                    await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(content));
 
-                    editor.edit(async builder => {
+                    editor.edit(builder => {
                         builder.delete(adjustedSelection);
                     });
                     const newDocument = await vscode.workspace.openTextDocument(uri);
@@ -1780,6 +1780,37 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 );
             });
+        }
+    });
+    const toBash = vscode.commands.registerCommand('caser.toBash', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selections = editor.selections;
+            var terminal = vscode.window.activeTerminal;
+            if (!terminal) {
+                terminal = vscode.window.createTerminal('Caser');
+            }
+            terminal.show();
+            // typically we may have a number of lines selected but not individually.
+            // We want to execute each line in the terminal one at a time.
+            for (const selection of selections) {
+                const sel2 = defaultToLineSelected(editor, selection);
+                var lines = document.getText(sel2);
+                if (lines.length === 0) {
+                    continue;
+                }
+                var linesArray = lines.replace('\r', '').split('\n');
+                for (const line of linesArray) {
+                    var text = line.trim();
+                    if (text.startsWith('`') && text.endsWith('`')) {
+                        text = text.replaceAll('`', '').trim();
+                    }
+                    // send text to terminal
+                    terminal.sendText(text);
+                }
+                terminal.sendText('exit');
+            }
         }
     });
     const toTerminal = vscode.commands.registerCommand('caser.toTerminal', () => {
